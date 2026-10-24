@@ -1,0 +1,10 @@
+{
+ "family": "Apna Ghar",
+ "updatedAt": 0,
+ "style": { "palette": "maroon", "frame": "jharokha", "lines": "vine" },
+ "admin": null,
+ "selfId": "me",
+ "people": [
+  { "id": "me", "name": "Your name", "nickname": "", "gender": "M", "gotra": "", "note": "", "photo": "", "parentId": null }
+ ]
+}

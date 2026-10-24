@@ -1,0 +1,1377 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Apna Ghar Vanshavali</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Jost:wght@400;500&family=Tiro+Devanagari+Hindi&display=swap">
+<style>
+/* Layout: a darbar hall — patterned ground, one pannable world of framed portraits joined by gold branches, a side panel that opens like a court record. Four palettes chosen by the admin; Darbar Maroon is the default. */
+:root{
+  --bg-hi:#5c1320; --bg-mid:#3a0a12; --bg-lo:#1c0408; --pattern:rgba(201,162,75,.08);
+  --bar-1:#24060b; --bar-2:#180307; --panel-1:#2a070d; --panel-2:#160307;
+  --well-1:#6e1826; --well-2:#330910; --mono:#f0d283;
+  --text:#f4ead3; --text-2:#cdbb95; --gold:#c9a24b; --gold-hi:#f0d283; --gold-lo:#8a6a2c;
+  --ink:#2a0a0f; --field:rgba(0,0,0,.28); --tint:rgba(201,162,75,.14); --veil:rgba(12,2,4,.72); --shadow:rgba(0,0,0,.5);
+  --toast-bg:#f4ead3; --toast-fg:#2a0a0f; --danger:#f0a090;
+  --f-display:"Cormorant Garamond","Cormorant",Georgia,"Times New Roman",serif;
+  --f-deva:"Tiro Devanagari Hindi","Noto Serif Devanagari","Kohinoor Devanagari",serif;
+  --f-ui:"Jost","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --cw:150px; --ch:258px;
+  color-scheme:dark;
+}
+:root[data-palette="peacock"]{
+  --bg-hi:#0f4a5e; --bg-mid:#0a2b3b; --bg-lo:#03131b; --pattern:rgba(201,162,75,.08);
+  --bar-1:#072433; --bar-2:#04151e; --panel-1:#08293a; --panel-2:#03121a;
+  --well-1:#16637d; --well-2:#062a3b; --mono:#ecd28a;
+  --text:#eef2e8; --text-2:#a7c2bf; --gold:#c9a24b; --gold-hi:#ecd28a; --gold-lo:#7d6a3a; --ink:#06202b;
+}
+:root[data-palette="emerald"]{
+  --bg-hi:#155438; --bg-mid:#0b3022; --bg-lo:#03170f; --pattern:rgba(208,168,73,.08);
+  --bar-1:#082b1d; --bar-2:#041a12; --panel-1:#0a2e20; --panel-2:#03140d;
+  --well-1:#1f6e4c; --well-2:#0a3324; --mono:#f2d585;
+  --text:#f2ecd8; --text-2:#b8c6a6; --gold:#d0a849; --gold-hi:#f2d585; --gold-lo:#85703a; --ink:#06200f;
+}
+:root[data-palette="ivory"]{
+  --bg-hi:#fdf8ec; --bg-mid:#f3e9d2; --bg-lo:#e3d2ae; --pattern:rgba(138,100,24,.11);
+  --bar-1:#fcf7eb; --bar-2:#f2e8d2; --panel-1:#fdf9f0; --panel-2:#f1e6cf;
+  --well-1:#7c1d2c; --well-2:#43101a; --mono:#f0d283;
+  --text:#3a0d14; --text-2:#7b5a44; --gold:#a07a2c; --gold-hi:#b07d1c; --gold-lo:#c4a463; --ink:#2a0a0f;
+  --field:rgba(255,255,255,.7); --tint:rgba(160,122,44,.14); --veil:rgba(58,13,20,.35); --shadow:rgba(80,40,20,.22);
+  --toast-bg:#3a0d14; --toast-fg:#f4ead3; --danger:#a4382c;
+  color-scheme:light;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;overflow:hidden;background:var(--bg-lo);color:var(--text);font-family:var(--f-ui)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bar-1)}
+.app{height:100%;display:flex;flex-direction:column}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
+
+/* Header */
+.bar{flex:none;position:relative;z-index:6;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px 24px;
+  padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background:linear-gradient(var(--bar-1),var(--bar-2));border-bottom:1px solid var(--gold-lo)}
+.bar::after{content:"";position:absolute;left:0;right:0;bottom:-5px;height:1px;background:linear-gradient(90deg,transparent,var(--gold) 30%,var(--gold) 70%,transparent);opacity:.6}
+.invoc{font-family:var(--f-deva);color:var(--gold);font-size:13px;letter-spacing:.04em}
+h1{margin:2px 0 0;font-family:var(--f-display);font-weight:600;font-size:clamp(25px,3vw,32px);line-height:1.05;color:var(--text);text-wrap:balance}
+h1 em{font-style:italic;font-weight:500;color:var(--gold-hi)}
+.meta{margin-top:4px;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-2)}
+.meta b{font-weight:500;color:var(--gold-hi)}
+.tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.search{position:relative}
+.search input{width:240px;max-width:100%;box-sizing:border-box;padding:9px 12px 9px 34px;border:1px solid var(--gold-lo);border-radius:3px;background:var(--field);color:var(--text);font:500 17px var(--f-display)}
+.search svg{position:absolute;left:11px;top:50%;margin-top:-7px;color:var(--gold);pointer-events:none}
+.search input::placeholder{color:var(--text-2);opacity:.75}
+.search input:focus{border-color:var(--gold-hi);outline:none}
+.results{position:absolute;top:calc(100% + 6px);left:0;right:0;min-width:240px;background:var(--panel-1);border:1px solid var(--gold-lo);box-shadow:0 20px 40px var(--shadow);z-index:20;padding:4px}
+.results button{display:flex;align-items:baseline;gap:8px;width:100%;text-align:left;background:none;border:0;padding:8px 10px;cursor:pointer;font:600 17px var(--f-display);color:var(--text);border-radius:2px}
+.results button small{font:italic 500 14px var(--f-display);color:var(--text-2)}
+.results button:hover,.results button.on{background:var(--tint)}
+.results .none{padding:10px;font:italic 16px var(--f-display);color:var(--text-2)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 14px;border:1px solid var(--gold-lo);border-radius:3px;background:transparent;color:var(--text);
+  font:500 12px var(--f-ui);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:border-color .2s,background .2s,color .2s;white-space:nowrap;margin:0}
+.btn:hover{border-color:var(--gold-hi);color:var(--gold-hi)}
+.btn.primary{background:linear-gradient(#e2c06a,#b98e3a);border-color:#e2c06a;color:#2a0a0f}
+.btn.primary:hover{color:#2a0a0f;background:linear-gradient(#f0d283,#c9a24b)}
+.btn.danger:hover{border-color:var(--danger);color:var(--danger)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn svg{flex:none}
+[data-admin]{display:none!important}
+body.admin [data-admin]{display:inline-flex!important}
+body.admin #adminBtn{background:var(--tint);border-color:var(--gold-hi);color:var(--gold-hi)}
+
+/* Stage */
+#stage{flex:1;position:relative;overflow:hidden;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;
+  background:radial-gradient(ellipse 80% 70% at 50% 35%,var(--bg-hi) 0%,var(--bg-mid) 55%,var(--bg-lo) 100%);background-color:var(--bg-lo)}
+#stage::before{content:"";position:absolute;inset:0;pointer-events:none;background:var(--pattern);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cg fill='none' stroke='%23000' stroke-width='1'%3E%3Cpath d='M28 8Q35 28 28 48Q21 28 28 8ZM8 28Q28 21 48 28Q28 35 8 28Z'/%3E%3Ccircle cx='28' cy='28' r='3'/%3E%3Cpath d='M0 0L9 9M56 0L47 9M0 56L9 47M56 56L47 47'/%3E%3C/g%3E%3C/svg%3E") 0 0/56px 56px repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cg fill='none' stroke='%23000' stroke-width='1'%3E%3Cpath d='M28 8Q35 28 28 48Q21 28 28 8ZM8 28Q28 21 48 28Q28 35 8 28Z'/%3E%3Ccircle cx='28' cy='28' r='3'/%3E%3Cpath d='M0 0L9 9M56 0L47 9M0 56L9 47M56 56L47 47'/%3E%3C/g%3E%3C/svg%3E") 0 0/56px 56px repeat}
+#stage.grabbing{cursor:grabbing}
+#world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+#links{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible}
+#cards,#gens{position:absolute;left:0;top:0}
+.loading{position:absolute;inset:0;display:grid;place-items:center;font:italic 500 20px var(--f-display);color:var(--text-2)}
+
+.vine{fill:none;stroke:var(--gold-lo);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:opacity .4s}
+:root[data-palette="ivory"] .vine{stroke:var(--gold)}
+.glow{fill:none;stroke:var(--gold-hi);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1 1;stroke-dashoffset:1;opacity:0}
+.glow.lit{opacity:1;stroke-dashoffset:0;filter:drop-shadow(0 0 4px rgba(240,210,131,.75));
+  transition:stroke-dashoffset 1s cubic-bezier(.65,0,.35,1) var(--delay,0s),opacity .15s var(--delay,0s)}
+.knot{fill:var(--gold);stroke:var(--gold);stroke-width:1.2;transition:opacity .4s}
+.knot.lit{fill:var(--gold-hi);stroke:var(--gold-hi)}
+#world.focus .vine{opacity:.3}
+#world.focus .knot:not(.lit){opacity:.35}
+
+/* Cards */
+.card{position:absolute;left:0;top:0;width:var(--cw);height:var(--ch);pointer-events:none;will-change:transform,opacity}
+.inner{display:flex;flex-direction:column;align-items:center;transition:opacity .45s}
+.arch-slot,.txt,.fold,.adm{pointer-events:auto}
+.arch-slot{cursor:pointer;margin-top:16px;border-radius:50% 50% 0 0}
+.arch{position:relative;width:112px;height:140px;transition:transform .4s cubic-bezier(.2,.8,.2,1),filter .4s}
+.portrait{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,var(--well-1),var(--well-2) 78%);display:grid;place-items:center}
+.portrait img{width:100%;height:100%;object-fit:cover;display:block}
+.mono{font:600 40px var(--f-display);color:var(--mono);margin-top:22px;letter-spacing:.02em}
+:root[data-frame="medallion"] .mono{margin-top:0}
+.frame{position:absolute;left:-8px;top:-16px;width:128px;height:164px;overflow:visible;pointer-events:none}
+.f-outer{fill:none;stroke:var(--gold);stroke-width:1.6}
+.f-inner{fill:none;stroke:var(--gold-hi);stroke-width:1;opacity:.65}
+.f-sill{fill:none;stroke:var(--gold);stroke-width:1.2}
+:root[data-frame="medallion"] .f-sill{display:none}
+.f-fin{fill:var(--gold-hi)}
+.f-stem{stroke:var(--gold);stroke-width:1.2}
+.ring{position:absolute;left:50%;top:58%;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;border:1.5px solid var(--gold-hi);opacity:0;pointer-events:none}
+.card.bloom .ring{animation:ring 1s ease-out}
+.card.bloom .ring.r2{animation-delay:.16s}
+@keyframes ring{0%{transform:scale(.45);opacity:.9}100%{transform:scale(1.9);opacity:0}}
+.arch-slot:hover .arch{transform:translateY(-3px);filter:drop-shadow(0 0 14px rgba(240,210,131,.35))}
+.card.sel .arch{transform:translateY(-4px) scale(1.05);filter:drop-shadow(0 0 22px rgba(240,210,131,.6))}
+.card.lit .f-outer,.card.sel .f-outer{stroke:var(--gold-hi);stroke-width:2}
+.card.born .arch{animation:bud .8s cubic-bezier(.2,.9,.3,1.35) both}
+@keyframes bud{from{transform:scale(.25);opacity:0}}
+.txt{width:132px;margin-top:16px;text-align:center;cursor:pointer}
+.nm{font:600 17px/1.12 var(--f-display);color:var(--text);text-wrap:balance;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nick{margin-top:2px;font:italic 500 15px/1.15 var(--f-display);color:var(--text-2)}
+.gotra{margin-top:5px;font:500 9.5px var(--f-ui);letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+#world.focus .card .inner{opacity:.4}
+#world.focus .card.lit .inner,#world.focus .card.kin .inner,#world.focus .card.sel .inner{opacity:1}
+#world.far .nick,#world.far .gotra{visibility:hidden}
+
+.fold{position:absolute;top:calc(var(--ch) - 13px);width:24px;height:24px;padding:0;border:1px solid var(--gold);border-radius:3px;background:var(--bar-2);color:var(--gold-hi);
+  transform:rotate(45deg);display:grid;place-items:center;cursor:pointer;transition:background .25s,color .25s}
+.fold span{transform:rotate(-45deg);font:500 10.5px var(--f-ui)}
+.fold:hover{border-color:var(--gold-hi)}
+.fold.closed{background:var(--gold);color:var(--bar-2)}
+.adm{position:absolute;top:128px;left:0;right:0;display:none;justify-content:center;gap:4px}
+.adm button{padding:4px 7px;border:1px solid var(--gold);border-radius:3px;background:#f4ead3;color:#2a0a0f;font:500 10px var(--f-ui);letter-spacing:.04em;cursor:pointer;box-shadow:0 4px 10px var(--shadow)}
+.adm button:hover{background:#f0d283}
+body.admin .card.sel .adm{display:flex}
+@media (hover:hover){body.admin .card:hover .adm{display:flex}body.admin .card:hover .adm-up{display:block}}
+.adm-up{position:absolute;top:-10px;left:50%;transform:translateX(-50%);display:none;padding:4px 8px;border:1px solid var(--gold);border-radius:3px;background:#f4ead3;color:#2a0a0f;
+  font:500 10px var(--f-ui);letter-spacing:.04em;white-space:nowrap;cursor:pointer;pointer-events:auto;box-shadow:0 4px 10px var(--shadow)}
+.adm-up:hover{background:#f0d283}
+body.admin .card.root .adm-up,body.admin .card.sel .adm-up{display:block}
+.me-tag{position:absolute;top:36px;right:2px;padding:3px 6px;border-radius:2px;background:linear-gradient(#e2c06a,#b98e3a);color:#2a0a0f;font:500 9px var(--f-ui);letter-spacing:.18em;text-transform:uppercase;box-shadow:0 3px 8px var(--shadow);pointer-events:none}
+.fold::before{content:"";position:absolute;inset:-9px}
+.p-gen{display:flex;justify-content:center;align-items:baseline;gap:8px;margin-top:8px;font:500 10px var(--f-ui);letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.p-gen span{font:16px var(--f-deva);letter-spacing:0;text-transform:none}
+.welcome{position:absolute;left:50%;bottom:max(84px,calc(env(safe-area-inset-bottom,0px) + 80px));transform:translateX(-50%);z-index:3;width:min(540px,calc(100% - 32px));box-sizing:border-box;
+  padding:14px 46px 14px 18px;background:var(--panel-1);border:1px solid var(--gold-lo);box-shadow:0 18px 40px var(--shadow);font:500 16.5px/1.45 var(--f-display);color:var(--text);animation:tipIn .5s cubic-bezier(.2,.8,.2,1) both .8s}
+@keyframes tipIn{from{opacity:0;transform:translate(-50%,14px)}}
+.welcome b{font-weight:600;color:var(--gold-hi)}
+.welcome button{position:absolute;top:8px;right:8px;width:30px;height:30px;border:1px solid var(--gold-lo);border-radius:50%;background:transparent;color:var(--gold-hi);font-size:17px;line-height:1;cursor:pointer}
+body.panel-open .welcome{display:none}
+.p-handle{display:none}
+@media (hover:none){
+  .adm button,.adm-up{padding:7px 10px;font-size:11.5px}
+  .adm{top:120px}
+  .adm-up{top:-16px}
+}
+
+.gen{position:absolute;left:0;top:0;width:130px;text-align:right;transition:transform .65s cubic-bezier(.65,0,.35,1);pointer-events:none}
+.gen .deva{display:block;font:22px var(--f-deva);color:var(--gold)}
+.gen .en{display:block;margin-top:2px;font:500 9.5px var(--f-ui);letter-spacing:.22em;text-transform:uppercase;color:var(--text-2);opacity:.8}
+.gen::after{content:"";display:block;margin:10px 0 0 auto;width:70px;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
+
+#world.intro .card .inner{animation:rise .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--d) * 240ms + 120ms)}
+#world.intro .vine{stroke-dasharray:1 1;stroke-dashoffset:1;animation:draw 1.1s ease forwards;animation-delay:calc(var(--d) * 240ms)}
+@keyframes rise{from{opacity:0;transform:translateY(20px) scale(.94)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* Floating UI */
+.corner{position:absolute;width:70px;height:70px;pointer-events:none;opacity:.55}
+.corner.tl{left:max(10px,env(safe-area-inset-left,0px));top:12px}
+.corner.tr{right:max(10px,env(safe-area-inset-right,0px));top:12px;transform:scaleX(-1)}
+.corner.bl{left:max(10px,env(safe-area-inset-left,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));transform:scaleY(-1)}
+.corner.br{right:max(10px,env(safe-area-inset-right,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));transform:scale(-1,-1)}
+.corner path{fill:none;stroke:var(--gold);stroke-width:1.2}
+.corner circle{fill:var(--gold)}
+.zoom{position:absolute;left:max(24px,calc(env(safe-area-inset-left,0px) + 12px));bottom:max(24px,calc(env(safe-area-inset-bottom,0px) + 12px));display:flex;gap:6px;z-index:3}
+.zoom button{width:40px;height:40px;padding:0;border:1px solid var(--gold-lo);border-radius:3px;background:var(--bar-2);color:var(--gold-hi);font:500 18px var(--f-ui);cursor:pointer;display:grid;place-items:center}
+.zoom button:hover{border-color:var(--gold-hi)}
+.hint{position:absolute;right:max(26px,calc(env(safe-area-inset-right,0px) + 12px));bottom:max(34px,calc(env(safe-area-inset-bottom,0px) + 22px));font:500 10.5px var(--f-ui);letter-spacing:.16em;text-transform:uppercase;color:var(--text-2);opacity:.75;transition:opacity .3s;pointer-events:none}
+body.panel-open .hint{opacity:0}
+
+/* Panel */
+#panel{position:absolute;top:0;right:0;bottom:0;width:min(400px,100%);box-sizing:border-box;z-index:4;overflow-y:auto;overscroll-behavior:contain;
+  background:linear-gradient(180deg,var(--panel-1),var(--panel-2));border-left:1px solid var(--gold-lo);box-shadow:-30px 0 60px var(--shadow);
+  transform:translateX(104%);transition:transform .6s cubic-bezier(.2,.8,.2,1),visibility 0s .6s;visibility:hidden;cursor:auto;touch-action:pan-y;user-select:text;-webkit-user-select:text}
+#panel.open{transform:none;visibility:visible;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.p-close{position:sticky;top:12px;float:right;margin:12px 12px 0 0;width:36px;height:36px;border:1px solid var(--gold-lo);border-radius:50%;background:var(--panel-2);color:var(--gold-hi);font-size:20px;line-height:1;cursor:pointer;z-index:2}
+#pbody{padding:8px 28px 40px}
+.halo-wrap{position:relative;height:270px;display:grid;place-items:center;margin-top:6px}
+.halo{position:absolute;left:50%;top:50%;width:300px;height:300px;margin:-150px 0 0 -150px;animation:spin 90s linear infinite}
+.halo path{fill:var(--tint);stroke:var(--gold);stroke-width:1;stroke-dasharray:1 1;stroke-dashoffset:1;animation:draw .9s cubic-bezier(.4,0,.2,1) forwards;animation-delay:calc(var(--i) * 45ms + 150ms)}
+.halo circle{fill:none;stroke:var(--gold-lo);stroke-width:.8;stroke-dasharray:2 4}
+@keyframes spin{to{transform:rotate(360deg)}}
+.big-arch{position:relative;width:168px;height:210px;margin-top:20px}
+.big-arch .arch{transform:scale(1.5);transform-origin:0 0;position:absolute;left:0;top:0}
+.big-arch.rise{animation:rise .7s cubic-bezier(.2,.8,.2,1) both .1s}
+.p-name{margin:14px 0 0;text-align:center;font:600 32px/1.1 var(--f-display);color:var(--text);text-wrap:balance}
+.p-nick{margin-top:4px;text-align:center;font:italic 500 20px var(--f-display);color:var(--text-2)}
+.p-line{margin-top:10px;text-align:center;font:500 11px var(--f-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--text-2)}
+.p-gotra{display:flex;justify-content:center;margin-top:16px}
+.p-gotra span{display:inline-flex;align-items:baseline;gap:10px;padding:6px 16px;border:1px solid var(--gold-lo);border-radius:999px;font:italic 500 18px var(--f-display);color:var(--gold-hi)}
+.p-gotra b{font:500 9.5px var(--f-ui);letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-style:normal}
+.divider{display:flex;align-items:center;gap:10px;margin:22px 0 18px}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-lo))}
+.divider::after{background:linear-gradient(90deg,var(--gold-lo),transparent)}
+.divider i{width:7px;height:7px;background:var(--gold);transform:rotate(45deg)}
+.p-note{margin:0;font:500 19px/1.5 var(--f-display);color:var(--text);max-width:60ch}
+.rel{margin-top:18px}
+.rel h4{margin:0 0 8px;font:500 10px var(--f-ui);letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:4px 12px 4px 4px;border:1px solid var(--gold-lo);border-radius:999px;background:transparent;
+  font:600 16px var(--f-display);color:var(--text);cursor:pointer;transition:border-color .2s,background .2s}
+.chip:hover{border-color:var(--gold-hi);background:var(--tint)}
+.chip .cm{width:26px;height:26px;border-radius:50%;background:var(--well-1);color:var(--mono);display:grid;place-items:center;font:600 12px var(--f-display);overflow:hidden;flex:none}
+.chip .cm img{width:100%;height:100%;object-fit:cover}
+.p-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px;padding-top:20px;border-top:1px solid var(--gold-lo)}
+.confirm{margin-top:14px;padding:14px;border:1px solid var(--danger);background:var(--tint);font:500 17px/1.4 var(--f-display)}
+.confirm .row{display:flex;gap:8px;margin-top:10px}
+
+/* Forms */
+.form{display:grid;gap:6px}
+.form label:not(.btn):not(.opt),.form legend{font:500 10.5px var(--f-ui);letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-top:10px}
+.form label small{letter-spacing:.04em;text-transform:none;color:var(--text-2);font-size:11px;margin-left:6px}
+.form input[type=text],.form input[type=password],.form textarea{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--gold-lo);border-radius:3px;background:var(--field);color:var(--text);font:500 18px var(--f-display)}
+.form textarea{resize:vertical;min-height:84px;line-height:1.4}
+.form input:focus,.form textarea:focus{outline:none;border-color:var(--gold-hi)}
+.photo-row{display:flex;align-items:flex-end;gap:16px;margin-top:20px}
+.photo-row .arch-wrap{width:112px;height:150px;padding-top:16px;flex:none}
+.photo-btns{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.photo-btns p{margin:0;font:italic 14px var(--f-display);color:var(--text-2)}
+.seg{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px}
+.seg legend{width:100%;padding:0;margin-bottom:6px}
+.seg label{margin:0!important;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid var(--gold-lo);border-radius:3px;cursor:pointer;font:600 16px var(--f-display)!important;letter-spacing:0!important;text-transform:none!important;color:var(--text)!important}
+.seg input{accent-color:#c9a24b}
+.seg label:has(input:checked){border-color:var(--gold-hi);background:var(--tint)}
+.count{justify-self:end;font:500 10.5px var(--f-ui);color:var(--text-2);font-variant-numeric:tabular-nums}
+.form-actions{display:flex;gap:8px;margin-top:16px}
+
+/* Modals */
+.modal{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:var(--veil);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  padding-block:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.modal-card{width:100%;max-width:560px;max-height:100%;overflow:auto;box-sizing:border-box;padding:26px;background:linear-gradient(var(--panel-1),var(--panel-2));border:1px solid var(--gold-lo);box-shadow:0 30px 80px var(--shadow);animation:pop .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.98)}}
+.modal-card h3{margin:0;font:600 28px var(--f-display);color:var(--text)}
+.modal-card > p{margin:8px 0 0;font:500 17px/1.45 var(--f-display);color:var(--text-2)}
+.modal-card textarea.code{font:12px/1.45 ui-monospace,"SF Mono",Menlo,monospace;min-height:130px}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+.spacer{flex:1}
+.msg{min-height:1.4em;margin:6px 0 0;font:500 16px/1.4 var(--f-display);color:var(--gold-hi)}
+.msg.err{color:var(--danger)}
+.section{margin-top:22px;padding-top:18px;border-top:1px solid var(--gold-lo)}
+.section h4{margin:0;font:600 20px var(--f-display);color:var(--text)}
+.section p{margin:4px 0 0;font:500 16px/1.45 var(--f-display);color:var(--text-2)}
+
+.auth{max-width:400px;text-align:center}
+.auth .form{text-align:left}
+.seal{width:58px;height:58px;margin:4px auto 14px;display:grid;place-items:center;border:1px solid var(--gold);transform:rotate(45deg);color:var(--gold-hi)}
+.seal svg{transform:rotate(-45deg)}
+.auth.shake{animation:shake .45s}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+
+/* Style picker: a side sheet so the tree stays visible while choosing */
+.modal.side{place-items:stretch start;background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;pointer-events:none;padding:0}
+.modal.side .modal-card{pointer-events:auto;max-width:380px;height:100%;max-height:none;border-width:0 1px 0 0;animation:slide .45s cubic-bezier(.2,.8,.2,1);padding-left:max(26px,env(safe-area-inset-left,0px))}
+@keyframes slide{from{transform:translateX(-30px);opacity:0}}
+.opts{border:0;padding:0;margin:20px 0 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.opts.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.opts legend{grid-column:1/-1;padding:0;margin:0 0 8px}
+.opt{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px 10px;border:1px solid var(--gold-lo);border-radius:4px;cursor:pointer;text-align:center;transition:border-color .2s,background .2s}
+.opt:hover{border-color:var(--gold)}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt:has(input:checked){border-color:var(--gold-hi);background:var(--tint);box-shadow:inset 0 0 0 1px var(--gold-hi)}
+.opt:has(input:focus-visible){outline:2px solid var(--gold-hi);outline-offset:2px}
+.opt b{font:600 16px/1.1 var(--f-display);color:var(--text)}
+.opt small{font:500 9.5px var(--f-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--text-2)}
+.sw{width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 50% 35%,var(--a),var(--b));box-shadow:inset 0 0 0 2px var(--c),0 0 0 3px var(--b),0 0 0 4px var(--c)}
+.opt svg{color:var(--gold)}
+
+.toast{position:fixed;left:50%;bottom:max(24px,calc(env(safe-area-inset-bottom,0px) + 16px));z-index:40;transform:translate(-50%,20px);opacity:0;pointer-events:none;
+  max-width:calc(100% - 32px);box-sizing:border-box;padding:11px 18px;background:var(--toast-bg);color:var(--toast-fg);border:1px solid var(--gold);font:600 16px var(--f-display);box-shadow:0 12px 30px var(--shadow);transition:opacity .3s,transform .3s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:720px){
+  .bar{gap:10px;padding-block:10px}
+  .invoc{font-size:11.5px}
+  h1{font-size:24px}
+  .meta{font-size:9.5px;letter-spacing:.14em}
+  .search input{font-size:16px;padding-block:8px}
+  .tools .btn{min-width:40px;min-height:38px}
+  .p-handle{display:block;position:sticky;top:0;z-index:3;height:26px;margin-bottom:-26px;touch-action:none;cursor:grab;background:linear-gradient(var(--panel-1),transparent)}
+  .p-handle::before{content:"";position:absolute;left:50%;top:9px;width:44px;height:4px;margin-left:-22px;border-radius:2px;background:var(--gold-lo)}
+  .p-close{top:14px;margin-top:14px}
+  .welcome{bottom:max(80px,calc(env(safe-area-inset-bottom,0px) + 76px));font-size:15.5px}
+  .p-actions .btn{flex:1 1 calc(50% - 8px)}
+  .zoom button{width:44px;height:44px}
+  .tools{width:100%}
+  .search{flex:1;min-width:0}
+  .search input{width:100%}
+  .tools .btn .lbl{display:none}
+  .tools .btn{padding:9px 11px}
+  .hint{display:none}
+  .corner{width:44px;height:44px}
+  #panel{top:auto;left:0;width:auto;height:min(64%,580px);border-left:0;border-top:1px solid var(--gold-lo);transform:translateY(104%);box-shadow:0 -24px 50px var(--shadow)}
+  #pbody{padding:0 max(18px,env(safe-area-inset-right,0px)) 32px max(18px,env(safe-area-inset-left,0px))}
+  .halo-wrap{height:220px}
+  .halo{transform:scale(.8)}
+  .big-arch{width:134px;height:168px}
+  .big-arch .arch{transform:scale(1.2)}
+  .p-name{font-size:28px}
+  .modal.side{place-items:end stretch}
+  .modal.side .modal-card{max-width:none;height:auto;max-height:58%;border-width:1px 0 0;padding:20px max(18px,env(safe-area-inset-right,0px)) 24px max(18px,env(safe-area-inset-left,0px))}
+  .modal.side .modal-card > p{display:none}
+  .opts{grid-template-columns:repeat(4,minmax(0,1fr));margin-top:14px}
+  .opts.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .opts.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .opt{padding:8px 4px}
+  .opt small{display:none}
+  .sw{width:36px;height:36px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important}
+  .glow.lit{stroke-dashoffset:0}
+  .halo path{stroke-dashoffset:0}
+}
+</style>
+
+<div class="app">
+  <header class="bar">
+    <div class="brand">
+      <div class="invoc">॥ श्री गणेशाय नमः ॥</div>
+      <h1><span id="famName">Apna Ghar</span> <em>Vanshavali</em></h1>
+      <div class="meta" id="meta">&nbsp;</div>
+    </div>
+    <div class="tools">
+      <div class="search">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l4 4"/></svg>
+        <input id="q" type="search" placeholder="Find a family member" autocomplete="off" aria-label="Find a family member">
+        <div id="results" class="results" hidden></div>
+      </div>
+      <button class="btn" id="styleBtn" type="button" data-admin aria-label="Style">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M8 1.5l1.6 3.4 3.7.5-2.7 2.6.7 3.7L8 10l-3.3 1.7.7-3.7L2.7 5.4l3.7-.5z"/></svg><span class="lbl">Style</span></button>
+      <button class="btn" id="dataBtn" type="button" data-admin aria-label="Family file">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 1.5h6.5L13 5v9.5H3z"/><path d="M9.5 1.5V5H13M5.5 9h5M5.5 11.5h5"/></svg><span class="lbl">Family file</span></button>
+      <button class="btn" id="adminBtn" type="button">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="7" width="10" height="7.5" rx="1"/><path id="shackle" d="M5.2 7V4.8a2.8 2.8 0 015.6 0V7"/></svg><span class="lbl" id="adminLbl">Admin</span></button>
+    </div>
+  </header>
+
+  <main id="stage">
+    <div id="world">
+      <svg id="links" aria-hidden="true"></svg>
+      <div id="gens"></div>
+      <div id="cards"></div>
+    </div>
+    <div class="loading" id="loading">Opening the vanshavali…</div>
+    <svg class="corner tl" viewBox="0 0 70 70" aria-hidden="true"><path d="M2 68V22Q2 2 22 2H68"/><path d="M9 68V26Q9 9 26 9H68"/><path d="M16 40Q16 16 40 16"/><circle cx="22" cy="22" r="2.5"/></svg>
+    <svg class="corner tr" viewBox="0 0 70 70" aria-hidden="true"><path d="M2 68V22Q2 2 22 2H68"/><path d="M9 68V26Q9 9 26 9H68"/><path d="M16 40Q16 16 40 16"/><circle cx="22" cy="22" r="2.5"/></svg>
+    <svg class="corner bl" viewBox="0 0 70 70" aria-hidden="true"><path d="M2 68V22Q2 2 22 2H68"/><path d="M9 68V26Q9 9 26 9H68"/><path d="M16 40Q16 16 40 16"/><circle cx="22" cy="22" r="2.5"/></svg>
+    <svg class="corner br" viewBox="0 0 70 70" aria-hidden="true"><path d="M2 68V22Q2 2 22 2H68"/><path d="M9 68V26Q9 9 26 9H68"/><path d="M16 40Q16 16 40 16"/><circle cx="22" cy="22" r="2.5"/></svg>
+    <div class="zoom ui">
+      <button type="button" id="zOut" aria-label="Zoom out">−</button>
+      <button type="button" id="zFit" aria-label="Show the whole tree"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4"/></svg></button>
+      <button type="button" id="zIn" aria-label="Zoom in">+</button>
+    </div>
+    <div class="hint ui">Drag to move · Scroll to zoom · Click a portrait</div>
+    <div class="welcome ui" id="welcome" hidden>
+      <b>Start with yourself.</b> Unlock <b>Admin</b>, tap your portrait and edit your name. Then use <b>+ Parents</b>, <b>+ Spouse</b> and <b>+ Child</b> to grow the tree in any direction. Generations number themselves as you add elders.
+      <button type="button" id="welcomeClose" aria-label="Close tip">×</button>
+    </div>
+    <aside id="panel" class="ui" aria-hidden="true" aria-label="Family member details">
+      <div class="p-handle" id="pHandle" aria-hidden="true"></div>
+      <button class="p-close" type="button" data-a="close" aria-label="Close details">×</button>
+      <div id="pbody"></div>
+    </aside>
+  </main>
+</div>
+
+<!-- Admin password -->
+<div id="authModal" class="modal ui" hidden role="dialog" aria-modal="true" aria-labelledby="au-title">
+  <div class="modal-card auth" id="authCard">
+    <div class="seal"><svg width="22" height="22" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><rect x="3" y="7" width="10" height="7.5" rx="1"/><path d="M5.2 7V4.8a2.8 2.8 0 015.6 0V7"/></svg></div>
+    <h3 id="au-title">Admin access</h3>
+    <p id="au-text">Enter the admin password to edit the family tree.</p>
+    <form class="form" id="authForm" novalidate>
+      <label for="au-pass">Password</label>
+      <input type="password" id="au-pass" autocomplete="current-password">
+      <div id="au-confirm" hidden class="form">
+        <label for="au-pass2">Repeat password</label>
+        <input type="password" id="au-pass2" autocomplete="new-password">
+      </div>
+      <p class="msg" id="au-msg" role="status"></p>
+      <div class="row"><span class="spacer"></span><button type="button" class="btn" id="au-cancel">Cancel</button><button type="submit" class="btn primary" id="au-go">Unlock</button></div>
+    </form>
+  </div>
+</div>
+
+<!-- Style picker -->
+<div id="styleModal" class="modal side ui" hidden role="dialog" aria-labelledby="st-title">
+  <div class="modal-card form">
+    <h3 id="st-title">Style</h3>
+    <p>Pick a look. It changes live, and everyone who opens the tree will see the one you choose.</p>
+    <fieldset class="opts" id="opt-palette">
+      <legend>Colour</legend>
+      <label class="opt"><input type="radio" name="palette" value="maroon"><span class="sw" style="--a:#6e1826;--b:#1c0408;--c:#c9a24b"></span><b>Darbar Maroon</b><small>Maroon · gold</small></label>
+      <label class="opt"><input type="radio" name="palette" value="peacock"><span class="sw" style="--a:#16637d;--b:#03131b;--c:#c9a24b"></span><b>Mayur Blue</b><small>Peacock · gold</small></label>
+      <label class="opt"><input type="radio" name="palette" value="emerald"><span class="sw" style="--a:#1f6e4c;--b:#03170f;--c:#d0a849"></span><b>Panna Green</b><small>Emerald · gold</small></label>
+      <label class="opt"><input type="radio" name="palette" value="ivory"><span class="sw" style="--a:#fdf8ec;--b:#e3d2ae;--c:#a07a2c"></span><b>Sheesh Ivory</b><small>Ivory · maroon</small></label>
+    </fieldset>
+    <fieldset class="opts three" id="opt-frame">
+      <legend>Portrait frame</legend>
+      <label class="opt"><input type="radio" name="frame" value="jharokha"><svg width="40" height="50" viewBox="-4 -4 120 148" aria-hidden="true"><path data-frame="jharokha" fill="none" stroke="currentColor" stroke-width="6"/></svg><b>Jharokha</b><small>Ogee arch</small></label>
+      <label class="opt"><input type="radio" name="frame" value="mehrab"><svg width="40" height="50" viewBox="-4 -4 120 148" aria-hidden="true"><path data-frame="mehrab" fill="none" stroke="currentColor" stroke-width="6"/></svg><b>Mehrab</b><small>Cusped arch</small></label>
+      <label class="opt"><input type="radio" name="frame" value="medallion"><svg width="40" height="50" viewBox="-4 -4 120 148" aria-hidden="true"><path data-frame="medallion" fill="none" stroke="currentColor" stroke-width="6"/></svg><b>Medallion</b><small>Oval cameo</small></label>
+    </fieldset>
+    <fieldset class="opts two" id="opt-lines">
+      <legend>Branches</legend>
+      <label class="opt"><input type="radio" name="lines" value="vine"><svg width="56" height="40" viewBox="0 0 56 40" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M28 2V12C28 22 8 20 8 38M28 12C28 22 48 20 48 38"/></svg><b>Vines</b><small>Flowing curves</small></label>
+      <label class="opt"><input type="radio" name="lines" value="royal"><svg width="56" height="40" viewBox="0 0 56 40" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M28 2V20M12 20H44M8 24Q8 20 12 20M48 24Q48 20 44 20M8 24V38M48 24V38"/></svg><b>Royal</b><small>Straight lines</small></label>
+    </fieldset>
+    <div class="row"><span class="spacer"></span><button class="btn primary" type="button" id="st-close">Done</button></div>
+  </div>
+</div>
+
+<!-- Family file -->
+<div id="dataModal" class="modal ui" hidden role="dialog" aria-modal="true" aria-labelledby="dm-title">
+  <div class="modal-card form">
+    <h3 id="dm-title">Family file</h3>
+    <p>Your edits are saved in this browser. To show them to everyone, download <b>family.json</b> and replace the file where this tree is hosted.</p>
+    <label for="dm-family">Family name</label>
+    <input type="text" id="dm-family" maxlength="40">
+    <div class="row">
+      <button class="btn primary" type="button" id="dm-download">Download family.json</button>
+      <button class="btn" type="button" id="dm-copy">Copy as text</button>
+    </div>
+    <p class="msg" id="dm-msg" role="status"></p>
+    <div class="section">
+      <h4>Load a family file</h4>
+      <p>Open a saved family.json, or paste its text below.</p>
+      <label for="dm-json">Family file text</label>
+      <textarea id="dm-json" class="code" rows="6" spellcheck="false" placeholder='{ "family": "…", "people": [ … ] }'></textarea>
+      <div class="row">
+        <label class="btn" for="dm-file">Open file</label>
+        <input type="file" id="dm-file" accept=".json,application/json" hidden>
+        <button class="btn" type="button" id="dm-apply">Load pasted text</button>
+      </div>
+    </div>
+    <div class="section">
+      <h4>Admin password</h4>
+      <div class="row">
+        <button class="btn" type="button" id="dm-pass">Change password</button>
+        <button class="btn danger" type="button" id="dm-discard">Discard my edits</button>
+      </div>
+    </div>
+    <div class="row"><span class="spacer"></span><button class="btn primary" type="button" id="dm-close">Done</button></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<datalist id="gotras"></datalist>
+
+<script type="application/json" id="family-data">{"family":"Apna Ghar","updatedAt":0,"style":{"palette":"maroon","frame":"jharokha","lines":"vine"},"admin":null,"selfId":"me","people":[{"id":"me","name":"Your name","nickname":"","gender":"M","gotra":"","note":"","photo":"","parentId":null}]}</script>
+<script>
+(() => {
+const CW = 150, CH = 258, COUPLE = 18, SIB = 44, ROW = 350;
+const ARCH_X = 19, KNOT_Y = 16 + 84;
+const DRAFT_KEY = 'apna-ghar-draft-v2', SESSION_KEY = 'vanshavali-admin-v1';
+const RM = matchMedia('(prefers-reduced-motion: reduce)');
+const FRAMES = {
+  jharokha: 'M0,140 V56 C0,33 28,24 42,14 C49,9 54,5 56,0 C58,5 63,9 70,14 C84,24 112,33 112,56 V140 Z',
+  mehrab: 'M0,140 V60 A14,14 0 0 1 10,38 A14,14 0 0 1 26,20 A12,12 0 0 1 42,8 A10,10 0 0 1 56,0 A10,10 0 0 1 70,8 A12,12 0 0 1 86,20 A14,14 0 0 1 102,38 A14,14 0 0 1 112,60 V140 Z',
+  medallion: 'M56,0 C87,0 112,31 112,70 C112,109 87,140 56,140 C25,140 0,109 0,70 C0,31 25,0 56,0 Z',
+};
+const DEFAULT_STYLE = { palette: 'maroon', frame: 'jharokha', lines: 'vine' };
+const COMMON_GOTRAS = ['Agastya','Atri','Bharadwaj','Garg','Gautam','Jamadagni','Kashyap','Kaushik','Shandilya','Vashishtha','Vatsa','Vishwamitra'];
+
+const $ = s => document.querySelector(s);
+const stage = $('#stage'), world = $('#world'), cardsLayer = $('#cards'), svg = $('#links'), gensLayer = $('#gens');
+const panel = $('#panel'), pbody = $('#pbody');
+const NS = 'http://www.w3.org/2000/svg';
+
+let fileData = null, data = null;
+let P, KIDS, SP;
+const collapsed = new Set();
+let selected = null, editing = false, admin = false, draftPhoto = null, confirmRemove = false;
+let welcomeClosed = false;
+try { welcomeClosed = sessionStorage.getItem('apna-ghar-tip') === '1'; } catch (e) {}
+const cur = {}, els = new Map(), linkEls = new Map(), knotEls = new Map();
+let target = {}, depthOf = {};
+const cam = { x: 0, y: 0, k: 1 };
+let ARCH = FRAMES.jharokha;
+
+const clone = o => JSON.parse(JSON.stringify(o));
+function valid(d) { return d && Array.isArray(d.people) && d.people.length > 0 && d.people.every(p => p && typeof p.id === 'string' && typeof p.name === 'string'); }
+function loadDraft() { try { const s = localStorage.getItem(DRAFT_KEY); if (!s) return null; const d = JSON.parse(s); return valid(d) ? d : null; } catch (e) { return null; } }
+function saveDraft() { try { localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); } catch (e) { toast('This browser did not save the change. Download the family file to keep it.'); } }
+function dropDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) {} }
+function uid() { return 'p' + Math.random().toString(36).slice(2, 9); }
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+function initials(name) {
+  const w = String(name || '?').replace(/\b(Pt|Smt|Shri|Sri|Dr|Late)\.?\s+/gi, '').trim().split(/\s+/).filter(Boolean);
+  return ((w[0]?.[0] || '?') + (w.length > 1 ? w[w.length - 1][0] : '')).toUpperCase();
+}
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const ease = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+const DEVA = '०१२३४५६७८९';
+const deva = n => String(n).split('').map(d => DEVA[d]).join('');
+const roman = n => ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'][n - 1] || String(n);
+const isDirty = () => (data?.updatedAt || 0) > (fileData?.updatedAt || 0);
+
+/* ---------- Model ---------- */
+function index() {
+  P = new Map(data.people.map(p => [p.id, p])); KIDS = new Map(); SP = new Map();
+  for (const p of data.people) {
+    if (p.spouseOf && P.has(p.spouseOf)) push(SP, p.spouseOf, p.id);
+    else if (p.parentId && P.has(p.parentId)) push(KIDS, p.parentId, p.id);
+  }
+}
+function push(m, k, v) { if (!m.has(k)) m.set(k, []); m.get(k).push(v); }
+const isSpouse = p => !!(p && p.spouseOf && P.has(p.spouseOf));
+const kidsOf = id => KIDS.get(id) || [];
+const spOf = id => SP.get(id) || [];
+const blood = id => { const p = P.get(id); return isSpouse(p) ? p.spouseOf : id; };
+const parentOf = id => { const p = P.get(id); return p && !isSpouse(p) && p.parentId && P.has(p.parentId) ? p.parentId : null; };
+const roots = () => data.people.filter(p => !isSpouse(p) && !parentOf(p.id)).map(p => p.id);
+function anchorOf(id) {
+  const p = P.get(id); if (!p) return null;
+  if (isSpouse(p)) return p.spouseOf;
+  return parentOf(id) || kidsOf(id)[0] || null;
+}
+
+/* ---------- Style ---------- */
+function style() { return { ...DEFAULT_STYLE, ...(data?.style || {}) }; }
+function applyStyle() {
+  const s = style();
+  document.documentElement.dataset.palette = s.palette;
+  document.documentElement.dataset.frame = s.frame;
+  ARCH = FRAMES[s.frame] || FRAMES.jharokha;
+  for (const el of els.values()) el._pk = null;
+}
+
+/* ---------- Layout: descendant tree, spouses beside their partner ---------- */
+function layout() {
+  target = {}; depthOf = {};
+  const size = {};
+  const uw = id => CW * (1 + spOf(id).length) + COUPLE * spOf(id).length;
+  const vis = id => collapsed.has(id) ? [] : kidsOf(id);
+  const measure = id => {
+    const k = vis(id);
+    const s = k.reduce((a, c) => a + measure(c), 0) + SIB * Math.max(0, k.length - 1);
+    return size[id] = Math.max(uw(id), s);
+  };
+  const place = (id, left, d) => {
+    const cx = left + size[id] / 2;
+    let x = cx - uw(id) / 2;
+    target[id] = { x, y: d * ROW, o: 1 }; depthOf[id] = d;
+    for (const s of spOf(id)) { x += CW + COUPLE; target[s] = { x, y: d * ROW, o: 1 }; depthOf[s] = d; }
+    const k = vis(id);
+    const tot = k.reduce((a, c) => a + size[c], 0) + SIB * Math.max(0, k.length - 1);
+    let l = cx - tot / 2;
+    for (const c of k) { place(c, l, d + 1); l += size[c] + SIB; }
+  };
+  let left = 0;
+  for (const r of roots()) { measure(r); place(r, left, 0); left += size[r] + SIB * 2; }
+}
+
+/* ---------- Rendering ---------- */
+function makeCard(id) {
+  const el = document.createElement('div');
+  el.className = 'card'; el.dataset.id = id;
+  el.innerHTML = `<div class="inner"><div class="arch-slot" tabindex="0" role="button"></div><div class="txt"><div class="nm"></div><div class="nick"></div><div class="gotra"></div></div></div>` +
+    `<span class="me-tag" hidden>You</span>` +
+    `<button class="adm-up" type="button" data-act="parents" hidden>+ Parents</button>` +
+    `<button class="fold" type="button"><span></span></button>` +
+    `<div class="adm"><button type="button" data-act="child">+ Child</button><button type="button" data-act="spouse">+ Spouse</button></div>`;
+  return el;
+}
+function frameSVG() {
+  return `<svg class="frame" viewBox="-8 -16 128 164" aria-hidden="true"><path class="f-outer" d="${ARCH}" transform="translate(-5 -6) scale(1.09 1.064)"/><path class="f-inner" d="${ARCH}"/><path class="f-sill" d="M-8 146H120M-3 150H115"/><path class="f-stem" d="M56 -8V-3"/><circle class="f-fin" cx="56" cy="-11" r="3"/></svg>`;
+}
+function archHTML(p) {
+  const inner = p.photo ? `<img src="${esc(p.photo)}" alt="">` : `<span class="mono">${esc(initials(p.name))}</span>`;
+  return `<div class="arch"><div class="portrait" style="clip-path:path('${ARCH}')">${inner}</div>${frameSVG()}<i class="ring"></i><i class="ring r2"></i></div>`;
+}
+function fill(el, id) {
+  const p = P.get(id);
+  el._anchor = anchorOf(id);
+  el._link = parentOf(id);
+  if (isSpouse(p)) { const list = spOf(p.spouseOf); const i = list.indexOf(id); el._knot = i > 0 ? list[i - 1] : p.spouseOf; } else el._knot = null;
+  el.style.setProperty('--d', depthOf[id] ?? 0);
+  const pk = (p.photo || ('#' + initials(p.name))) + ARCH.length;
+  const slot = el.querySelector('.arch-slot');
+  if (el._pk !== pk) { slot.innerHTML = archHTML(p); el._pk = pk; }
+  slot.setAttribute('aria-label', `${p.name}${p.nickname ? ', ' + p.nickname : ''}`);
+  el.querySelector('.nm').textContent = p.name;
+  const nick = el.querySelector('.nick'); nick.textContent = p.nickname || ''; nick.hidden = !p.nickname;
+  const g = el.querySelector('.gotra'); g.textContent = p.gotra || ''; g.hidden = !p.gotra;
+  const fold = el.querySelector('.fold');
+  const n = isSpouse(p) ? 0 : kidsOf(id).length;
+  fold.hidden = !n;
+  if (n) {
+    const closed = collapsed.has(id);
+    fold.classList.toggle('closed', closed);
+    fold.querySelector('span').textContent = closed ? '+' + countDesc(id) : '−';
+    fold.setAttribute('aria-label', closed ? `Show ${p.name}'s branch` : `Fold ${p.name}'s branch`);
+    fold.style.left = (spOf(id).length ? CW + COUPLE / 2 - 12 : CW / 2 - 12) + 'px';
+  }
+  const root = !isSpouse(p) && !parentOf(id);
+  el.classList.toggle('root', root);
+  el.querySelector('.adm-up').hidden = !root;
+  el.querySelector('.me-tag').hidden = data.selfId !== id;
+  el.querySelector('[data-act="spouse"]').hidden = isSpouse(p) || spOf(id).length > 0;
+}
+function countDesc(id) { let n = 0; for (const k of kidsOf(id)) n += 1 + spOf(k).length + countDesc(k); return n; }
+function visibleAncestor(id) {
+  let a = els.get(id)?._anchor, guard = 0;
+  while (a && !target[a] && guard++ < 500) a = els.get(a)?._anchor;
+  return a && target[a] ? a : null;
+}
+
+function render({ dur = 650, intro = false } = {}) {
+  index(); layout();
+  const vis = new Set(Object.keys(target));
+  for (const id of vis) {
+    let el = els.get(id);
+    if (!el) {
+      el = makeCard(id); els.set(id, el); cardsLayer.appendChild(el);
+      const a = anchorOf(id); const s = (a && (cur[a] || target[a])) || target[id];
+      cur[id] = intro ? { ...target[id], o: 1 } : { x: s.x, y: s.y, o: 0 };
+      if (!intro) el.classList.add('born');
+    }
+    el.classList.remove('leaving');
+    fill(el, id);
+  }
+  const to = { ...target };
+  for (const [id, el] of els) {
+    if (vis.has(id)) continue;
+    const a = visibleAncestor(id);
+    to[id] = a ? { ...target[a], o: 0 } : { ...cur[id], o: 0 };
+    el.classList.add('leaving');
+  }
+  syncLinks(new Set(els.keys()));
+  drawGens(); updateMeta();
+  tween(to, intro ? 0 : dur);
+  highlight();
+}
+
+let tw = null;
+function tween(to, dur) {
+  if (tw) cancelAnimationFrame(tw);
+  if (RM.matches) dur = 0;
+  const from = {};
+  for (const id in to) from[id] = { ...(cur[id] || to[id]) };
+  const t0 = performance.now();
+  const step = now => {
+    const p = dur ? Math.min(1, (now - t0) / dur) : 1, e = ease(p);
+    for (const id in to) { const a = from[id], b = to[id]; cur[id] = { x: a.x + (b.x - a.x) * e, y: a.y + (b.y - a.y) * e, o: a.o + (b.o - a.o) * e }; }
+    apply();
+    if (p < 1) tw = requestAnimationFrame(step); else finish();
+  };
+  tw = requestAnimationFrame(step);
+}
+function finish() {
+  tw = null;
+  for (const [id, el] of els) if (el.classList.contains('leaving')) { el.remove(); els.delete(id); delete cur[id]; }
+  syncLinks(new Set(els.keys())); apply();
+  setTimeout(() => { for (const el of els.values()) el.classList.remove('born'); }, 300);
+}
+
+function syncLinks(ids) {
+  const wantL = new Map(), wantK = new Map();
+  for (const id of ids) {
+    const el = els.get(id);
+    if (el._link && ids.has(el._link)) wantL.set(id, el._link);
+    if (el._knot && ids.has(el._knot)) wantK.set(id, el._knot);
+  }
+  for (const [id, L] of linkEls) if (!wantL.has(id)) { L.g.remove(); linkEls.delete(id); }
+  for (const [id, K] of knotEls) if (!wantK.has(id)) { K.el.remove(); knotEls.delete(id); }
+  for (const [cid, pid] of wantL) {
+    let L = linkEls.get(cid);
+    if (!L) {
+      const g = document.createElementNS(NS, 'g');
+      const base = document.createElementNS(NS, 'path'); base.setAttribute('class', 'vine'); base.setAttribute('pathLength', '1');
+      const glow = document.createElementNS(NS, 'path'); glow.setAttribute('class', 'glow'); glow.setAttribute('pathLength', '1');
+      g.append(base, glow); svg.appendChild(g);
+      L = { g, base, glow }; linkEls.set(cid, L);
+    }
+    L.pid = pid;
+    L.couple = spOf(pid).some(s => ids.has(s));
+    L.g.style.setProperty('--d', Math.max(0, (depthOf[cid] ?? 1) - 0.6));
+  }
+  for (const [sid, from] of wantK) {
+    let K = knotEls.get(sid);
+    if (!K) { const el = document.createElementNS(NS, 'path'); el.setAttribute('class', 'knot'); svg.appendChild(el); K = { el }; knotEls.set(sid, K); }
+    K.from = from;
+  }
+}
+
+function branchPath(ox, ky, oy, cx, cy) {
+  const m = oy + (cy - oy) * .5;
+  if (style().lines !== 'royal') return `M${ox} ${ky}L${ox} ${oy}C${ox} ${m} ${cx} ${m} ${cx} ${cy}`;
+  const dx = cx - ox;
+  if (Math.abs(dx) < 1) return `M${ox} ${ky}L${ox} ${cy}`;
+  const s = Math.sign(dx), r = Math.min(12, Math.abs(dx) / 2);
+  return `M${ox} ${ky}L${ox} ${m - r}Q${ox} ${m} ${ox + s * r} ${m}L${cx - s * r} ${m}Q${cx} ${m} ${cx} ${m + r}L${cx} ${cy}`;
+}
+function apply() {
+  for (const [id, el] of els) {
+    const c = cur[id]; if (!c) continue;
+    el.style.transform = `translate(${c.x}px,${c.y}px)`;
+    el.style.opacity = c.o;
+  }
+  for (const [cid, L] of linkEls) {
+    const a = cur[L.pid], b = cur[cid]; if (!a || !b) continue;
+    const ox = L.couple ? a.x + CW + COUPLE / 2 : a.x + CW / 2;
+    const ky = L.couple ? a.y + KNOT_Y : a.y + CH - 13;
+    const d = branchPath(ox, ky, a.y + CH, b.x + CW / 2, b.y - 2);
+    L.base.setAttribute('d', d); L.glow.setAttribute('d', d);
+    L.g.style.opacity = Math.min(a.o, b.o);
+  }
+  for (const [sid, K] of knotEls) {
+    const a = cur[K.from], b = cur[sid]; if (!a || !b) continue;
+    const x1 = a.x + CW - ARCH_X + 3, x2 = b.x + ARCH_X - 3, y = a.y + KNOT_Y, mx = (x1 + x2) / 2;
+    K.el.setAttribute('d', `M${x1} ${y}H${mx - 6}M${mx + 6} ${y}H${x2}M${mx} ${y - 5}L${mx + 5} ${y}L${mx} ${y + 5}L${mx - 5} ${y}Z`);
+    K.el.style.opacity = Math.min(a.o, b.o);
+  }
+}
+
+function drawGens() {
+  const ids = Object.keys(target); if (!ids.length) { gensLayer.innerHTML = ''; return; }
+  const minX = Math.min(...ids.map(i => target[i].x));
+  const maxD = Math.max(...ids.map(i => depthOf[i]));
+  let html = '';
+  for (let d = 0; d <= maxD; d++) {
+    html += `<div class="gen" style="transform:translate(${minX - 170}px,${d * ROW + 70}px)"><span class="deva">पीढ़ी ${deva(d + 1)}</span><span class="en">Generation ${roman(d + 1)}</span></div>`;
+  }
+  gensLayer.innerHTML = html;
+}
+function updateMeta() {
+  const n = data.people.length;
+  const g = Object.keys(depthOf).length ? Math.max(...Object.values(depthOf)) + 1 : 0;
+  $('#famName').textContent = data.family || 'Apna Ghar';
+  const m = `${n} ${n === 1 ? 'member' : 'members'} · ${g} ${g === 1 ? 'generation' : 'generations'}`;
+  $('#welcome').hidden = n > 3 || welcomeClosed;
+  $('#meta').innerHTML = esc(m) + (admin && isDirty() ? ' · <b>unpublished edits</b>' : '');
+  document.title = `${data.family || 'Family'} Vanshavali`;
+  const gl = new Set([...COMMON_GOTRAS, ...data.people.map(p => p.gotra).filter(Boolean)]);
+  $('#gotras').innerHTML = [...gl].sort().map(g => `<option value="${esc(g)}">`).join('');
+}
+
+/* ---------- Focus & lineage ---------- */
+function highlight() {
+  const has = selected && P.has(selected);
+  world.classList.toggle('focus', !!has);
+  for (const el of els.values()) el.classList.remove('sel', 'lit', 'kin');
+  for (const L of linkEls.values()) L.glow.classList.remove('lit');
+  for (const K of knotEls.values()) K.el.classList.remove('lit');
+  if (!has) return;
+  void svg.getBoundingClientRect();
+  const p = P.get(selected);
+  els.get(selected)?.classList.add('sel');
+  let id = selected;
+  if (isSpouse(p)) { id = p.spouseOf; els.get(id)?.classList.add('lit'); }
+  for (const s of spOf(id)) { if (s !== selected) els.get(s)?.classList.add('kin'); knotEls.get(s)?.el.classList.add('lit'); }
+  const chain = []; let c = id;
+  while (parentOf(c)) { chain.push(c); c = parentOf(c); els.get(c)?.classList.add('lit'); for (const s of spOf(c)) { els.get(s)?.classList.add('lit'); knotEls.get(s)?.el.classList.add('lit'); } }
+  chain.reverse().forEach((cid, i) => { const L = linkEls.get(cid); if (L) { L.glow.style.setProperty('--delay', (i * .32) + 's'); L.glow.classList.add('lit'); } });
+  for (const k of kidsOf(id)) els.get(k)?.classList.add('kin');
+}
+function select(id, { edit = false } = {}) {
+  if (!P.has(id)) return;
+  expandTo(id);
+  selected = id; editing = edit && admin; draftPhoto = null; confirmRemove = false;
+  highlight();
+  const el = els.get(id);
+  if (el) { el.classList.remove('bloom'); void el.offsetWidth; el.classList.add('bloom'); }
+  panel.classList.add('open'); panel.setAttribute('aria-hidden', 'false'); document.body.classList.add('panel-open');
+  renderPanel(true); glideTo(id);
+}
+function closePanel() {
+  selected = null; editing = false;
+  panel.classList.remove('open'); panel.setAttribute('aria-hidden', 'true'); document.body.classList.remove('panel-open');
+  highlight();
+}
+function expandTo(id) {
+  let c = blood(id), changed = false;
+  while (parentOf(c)) { c = parentOf(c); if (collapsed.delete(c)) changed = true; }
+  if (changed) render();
+}
+
+/* ---------- Camera ---------- */
+let camRaf = null;
+function applyCam() {
+  world.style.transform = `translate3d(${cam.x}px,${cam.y}px,0) scale(${cam.k})`;
+  world.classList.toggle('far', cam.k < .42);
+}
+function stopCam() { if (camRaf) cancelAnimationFrame(camRaf); camRaf = null; }
+function animCam(to, dur) {
+  stopCam();
+  if (RM.matches || !dur) { Object.assign(cam, to); applyCam(); return; }
+  const from = { ...cam }, t0 = performance.now();
+  const step = now => {
+    const p = Math.min(1, (now - t0) / dur), e = ease(p);
+    cam.x = from.x + (to.x - from.x) * e; cam.y = from.y + (to.y - from.y) * e; cam.k = from.k + (to.k - from.k) * e;
+    applyCam();
+    camRaf = p < 1 ? requestAnimationFrame(step) : null;
+  };
+  camRaf = requestAnimationFrame(step);
+}
+function glideTo(id) {
+  const t = target[id] || cur[id]; if (!t) return;
+  const r = stage.getBoundingClientRect(), mobile = r.width < 720;
+  const panelW = mobile ? 0 : Math.min(400, r.width), sheet = mobile ? Math.min(r.height * .64, 580) : 0;
+  const k = clamp(Math.max(cam.k, mobile ? .7 : .9), .2, 1.25);
+  const cx = (r.width - panelW) / 2, cy = mobile ? (r.height - sheet) / 2 : r.height / 2;
+  animCam({ k, x: cx - (t.x + CW / 2) * k, y: cy - (t.y + CH / 2 - 10) * k }, 900);
+}
+function fit(dur = 700) {
+  const ids = Object.keys(target); if (!ids.length) return;
+  const r = stage.getBoundingClientRect();
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (const id of ids) { const t = target[id]; x0 = Math.min(x0, t.x); x1 = Math.max(x1, t.x + CW); y0 = Math.min(y0, t.y); y1 = Math.max(y1, t.y + CH); }
+  x0 -= 180; y0 -= 20;
+  const pad = r.width < 720 ? 20 : 60;
+  const k = clamp(Math.min((r.width - pad * 2) / (x1 - x0), (r.height - pad * 2 - 40) / (y1 - y0)), .2, 1);
+  animCam({ k, x: (r.width - (x1 - x0) * k) / 2 - x0 * k, y: (r.height - (y1 - y0) * k) / 2 - y0 * k }, dur);
+}
+function zoomAt(pt, f) {
+  const k2 = clamp(cam.k * f, .2, 2), f2 = k2 / cam.k;
+  cam.x = pt.x - (pt.x - cam.x) * f2; cam.y = pt.y - (pt.y - cam.y) * f2; cam.k = k2;
+}
+function zoomCenter(f) {
+  const r = stage.getBoundingClientRect(), k2 = clamp(cam.k * f, .2, 2), f2 = k2 / cam.k, pt = { x: r.width / 2, y: r.height / 2 };
+  animCam({ k: k2, x: pt.x - (pt.x - cam.x) * f2, y: pt.y - (pt.y - cam.y) * f2 }, 350);
+}
+
+const ptrs = new Map(); let dragMoved = false, downX = 0, downY = 0;
+stage.addEventListener('pointerdown', e => {
+  if (e.target.closest('.ui')) return;
+  if (e.button && e.button !== 0) return;
+  stopCam();
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (ptrs.size === 1) { downX = e.clientX; downY = e.clientY; dragMoved = false; }
+});
+window.addEventListener('pointermove', e => {
+  const p = ptrs.get(e.pointerId); if (!p) return;
+  if (ptrs.size === 1) {
+    if (!dragMoved) { if (Math.hypot(e.clientX - downX, e.clientY - downY) < 6) return; dragMoved = true; stage.classList.add('grabbing'); }
+    cam.x += e.clientX - p.x; cam.y += e.clientY - p.y; p.x = e.clientX; p.y = e.clientY; applyCam();
+  } else if (ptrs.size === 2) {
+    dragMoved = true;
+    const r = stage.getBoundingClientRect();
+    const [a, b] = [...ptrs.values()];
+    const d0 = Math.hypot(a.x - b.x, a.y - b.y), m0 = { x: (a.x + b.x) / 2 - r.left, y: (a.y + b.y) / 2 - r.top };
+    p.x = e.clientX; p.y = e.clientY;
+    const d1 = Math.hypot(a.x - b.x, a.y - b.y), m1 = { x: (a.x + b.x) / 2 - r.left, y: (a.y + b.y) / 2 - r.top };
+    if (d0 > 0) zoomAt(m0, d1 / d0);
+    cam.x += m1.x - m0.x; cam.y += m1.y - m0.y; applyCam();
+  }
+});
+const endPtr = e => { ptrs.delete(e.pointerId); if (!ptrs.size) stage.classList.remove('grabbing'); };
+window.addEventListener('pointerup', endPtr); window.addEventListener('pointercancel', endPtr);
+stage.addEventListener('wheel', e => {
+  if (e.target.closest('#panel')) return;
+  e.preventDefault(); stopCam();
+  const r = stage.getBoundingClientRect();
+  zoomAt({ x: e.clientX - r.left, y: e.clientY - r.top }, Math.exp(-e.deltaY * (e.ctrlKey ? .01 : .0015)));
+  applyCam();
+}, { passive: false });
+stage.addEventListener('scroll', () => { stage.scrollTop = 0; stage.scrollLeft = 0; });
+
+/* ---------- Card interactions ---------- */
+cardsLayer.addEventListener('click', e => {
+  if (dragMoved) return;
+  const card = e.target.closest('.card'); if (!card) return;
+  const id = card.dataset.id; if (!P.has(id)) return;
+  const act = e.target.closest('[data-act]')?.dataset.act;
+  if (act === 'child') return admin && addChild(id);
+  if (act === 'spouse') return admin && addSpouse(id);
+  if (act === 'parents') return admin && addParents(id);
+  if (e.target.closest('.fold')) return toggleFold(id);
+  if (e.target.closest('.arch-slot,.txt')) select(id);
+});
+cardsLayer.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('arch-slot')) { e.preventDefault(); select(e.target.closest('.card').dataset.id); }
+});
+stage.addEventListener('click', e => {
+  if (dragMoved || !e.target.isConnected || e.target.closest('.card,.ui')) return;
+  if (selected) closePanel();
+});
+function toggleFold(id) {
+  if (collapsed.has(id)) collapsed.delete(id); else collapsed.add(id);
+  render();
+  if (selected) { let c = blood(selected), hidden = false; while (parentOf(c)) { c = parentOf(c); if (collapsed.has(c)) hidden = true; } if (hidden) closePanel(); }
+}
+
+/* ---------- Editing (admin only) ---------- */
+function touch() { data.sample = false; data.updatedAt = Date.now(); saveDraft(); }
+function blank(extra) { return { id: uid(), name: 'New member', nickname: '', gender: 'M', gotra: '', note: '', photo: '', ...extra }; }
+function addChild(id) {
+  if (!admin) return;
+  const b = blood(id), bp = P.get(b);
+  const father = bp.gender === 'M' ? bp : P.get(spOf(b)[0]);
+  const child = blank({ gotra: father?.gotra || bp.gotra || '', parentId: b });
+  data.people.push(child); collapsed.delete(b); touch(); render();
+  select(child.id, { edit: true });
+}
+function addSpouse(id) {
+  if (!admin) return;
+  const b = blood(id), bp = P.get(b);
+  const s = blank({ gender: bp.gender === 'M' ? 'F' : 'M', spouseOf: b });
+  data.people.push(s); touch(); render();
+  select(s.id, { edit: true });
+}
+/* Adds a father and mother above someone at the top of the tree.
+   Generation numbers come from depth below the eldest ancestor, so they renumber on their own. */
+function addParents(id, { open = true } = {}) {
+  if (!admin) return null;
+  const p = P.get(id);
+  if (!p || isSpouse(p) || parentOf(id)) return null;
+  const father = blank({ name: 'Father', gender: 'M', gotra: p.gotra || '', parentId: null });
+  const mother = blank({ name: 'Mother', gender: 'F', spouseOf: father.id });
+  data.people.push(father, mother);
+  p.parentId = father.id;
+  touch(); render();
+  if (open) {
+    select(father.id, { edit: true });
+    toast(`Parents added above ${firstName(p.name)}. Generations renumbered.`);
+  }
+  return father.id;
+}
+function addSibling(id) {
+  if (!admin) return;
+  const b = blood(id);
+  const par = parentOf(b) || addParents(b, { open: false });
+  if (par) addChild(par);
+}
+function removalSet(id) {
+  const out = [id];
+  if (!isSpouse(P.get(id))) { out.push(...spOf(id)); for (const k of kidsOf(id)) out.push(...removalSet(k)); }
+  return out;
+}
+function removePerson(id) {
+  if (!admin) return;
+  const ids = new Set(removalSet(id));
+  data.people = data.people.filter(p => !ids.has(p.id));
+  for (const i of ids) collapsed.delete(i);
+  if (ids.has(data.selfId)) data.selfId = null;
+  touch(); closePanel(); render();
+  toast(ids.size > 1 ? `Removed ${ids.size} people from the tree` : 'Removed from the tree');
+}
+function readPhoto(file) {
+  return new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const W = 240, H = 300, c = document.createElement('canvas'); c.width = W; c.height = H;
+        const s = Math.max(W / img.width, H / img.height), w = img.width * s, h = img.height * s;
+        c.getContext('2d').drawImage(img, (W - w) / 2, (H - h) * .3, w, h);
+        res(c.toDataURL('image/jpeg', .82));
+      };
+      img.onerror = rej; img.src = fr.result;
+    };
+    fr.onerror = rej; fr.readAsDataURL(file);
+  });
+}
+
+/* ---------- Panel ---------- */
+function petals() {
+  let s = '<circle r="128"/><circle r="96"/>';
+  for (let i = 0; i < 16; i++) s += `<path style="--i:${i}" transform="rotate(${i * 22.5})" d="M0,-144 C12,-126 12,-108 0,-98 C-12,-108 -12,-126 0,-144Z"/>`;
+  return s;
+}
+function chip(id) {
+  const p = P.get(id); if (!p) return '';
+  const m = p.photo ? `<img src="${esc(p.photo)}" alt="">` : esc(initials(p.name));
+  return `<button type="button" class="chip" data-go="${esc(id)}"><span class="cm">${m}</span>${esc(p.name)}</button>`;
+}
+function relGroup(title, ids) { return ids.length ? `<div class="rel"><h4>${title}</h4><div class="chips">${ids.map(chip).join('')}</div></div>` : ''; }
+const firstName = n => n.replace(/^(Pt|Smt|Shri|Sri|Dr|Late)\.?\s+/i, '').split(' ')[0];
+function relationLine(p) {
+  if (isSpouse(p)) return `${p.gender === 'F' ? 'Wife' : 'Husband'} of ${P.get(p.spouseOf).name}`;
+  const par = parentOf(p.id);
+  if (!par) return 'Eldest recorded ancestor';
+  const ps = spOf(par).map(s => firstName(P.get(s).name));
+  return `${p.gender === 'F' ? 'Daughter' : 'Son'} of ${firstName(P.get(par).name)}${ps.length ? ' & ' + ps[0] : ''}`;
+}
+function viewHTML(p) {
+  const b = blood(p.id), sp = isSpouse(p);
+  const par = parentOf(b);
+  const parents = !sp && par ? [par, ...spOf(par)] : [];
+  const spouses = sp ? [p.spouseOf] : spOf(p.id);
+  const kids = kidsOf(b);
+  const sibs = !sp && par ? kidsOf(par).filter(k => k !== p.id) : [];
+  const isRoot = !sp && !par;
+  const onlyRoot = isRoot && roots().length === 1;
+  const n = removalSet(p.id).length;
+  const d = (depthOf[p.id] ?? 0) + 1;
+  const birth = [p.fatherName, p.motherName].filter(Boolean);
+  return `
+    <div class="halo-wrap"><svg class="halo" viewBox="-150 -150 300 300" aria-hidden="true">${petals()}</svg><div class="big-arch rise">${archHTML(p)}</div></div>
+    <h2 class="p-name">${esc(p.name)}</h2>
+    ${p.nickname ? `<div class="p-nick">${esc(p.nickname)}</div>` : ''}
+    <div class="p-line">${data.selfId === p.id ? 'You · ' : ''}${esc(relationLine(p))}</div>
+    ${sp && birth.length ? `<div class="p-line">${p.gender === 'F' ? 'Daughter' : 'Son'} of ${esc(birth.join(' & '))}</div>` : ''}
+    <div class="p-gen"><span>पीढ़ी ${deva(d)}</span>Generation ${roman(d)}</div>
+    ${p.gotra ? `<div class="p-gotra"><span><b>Gotra</b>${esc(p.gotra)}</span></div>` : ''}
+    <div class="divider"><i></i></div>
+    ${p.note ? `<p class="p-note">${esc(p.note)}</p>` : ''}
+    ${relGroup('Parents', parents)}${relGroup(spouses.length > 1 ? 'Spouses' : 'Spouse', spouses)}${relGroup('Children', kids)}${relGroup('Siblings', sibs)}
+    ${admin ? `<div class="p-actions">
+      <button type="button" class="btn primary" data-a="edit">Edit details</button>
+      ${isRoot ? '<button type="button" class="btn" data-a="parents">Add parents</button>' : ''}
+      ${sp ? '' : `<button type="button" class="btn" data-a="spouse">${spouses.length ? 'Add another marriage' : 'Add spouse'}</button>`}
+      <button type="button" class="btn" data-a="child">Add child</button>
+      ${sp ? '' : '<button type="button" class="btn" data-a="sibling">Add brother or sister</button>'}
+      ${data.selfId !== p.id ? '<button type="button" class="btn" data-a="me">This is me</button>' : ''}
+      <button type="button" class="btn danger" data-a="remove" ${onlyRoot ? 'disabled title="The eldest ancestor holds the whole tree together"' : ''}>Remove</button>
+    </div>
+    ${confirmRemove ? `<div class="confirm">Remove ${esc(p.name)}${n > 1 ? ` and ${n - 1} ${n - 1 === 1 ? 'person' : 'people'} in their branch` : ''}? This can't be undone.
+      <div class="row"><button type="button" class="btn danger" data-a="remove-yes">Remove</button><button type="button" class="btn" data-a="remove-no">Keep</button></div></div>` : ''}` : ''}`;
+}
+function formHTML(p) {
+  const photo = draftPhoto !== null ? draftPhoto : p.photo;
+  return `
+    <form class="form" id="editForm" novalidate>
+      <div class="photo-row">
+        <div class="arch-wrap">${archHTML({ ...p, photo })}</div>
+        <div class="photo-btns">
+          <label class="btn" for="f-photo">${photo ? 'Change photo' : 'Upload photo'}</label>
+          <input type="file" id="f-photo" accept="image/*" hidden>
+          ${photo ? '<button type="button" class="btn" data-a="nophoto">Remove photo</button>' : '<p>A face photo works best. It is cropped to the frame.</p>'}
+        </div>
+      </div>
+      <label for="f-name">Name</label>
+      <input type="text" id="f-name" maxlength="60" value="${esc(p.name)}" required>
+      <label for="f-nick">Nickname <small>shown under the name</small></label>
+      <input type="text" id="f-nick" maxlength="40" value="${esc(p.nickname)}" placeholder="Bauji, Guddi, Munna…">
+      <fieldset class="seg"><legend>Gender</legend>
+        <label><input type="radio" name="g" value="M" ${p.gender !== 'F' ? 'checked' : ''}> Male</label>
+        <label><input type="radio" name="g" value="F" ${p.gender === 'F' ? 'checked' : ''}> Female</label>
+      </fieldset>
+      <label for="f-gotra">Gotra ${isSpouse(p) ? '<small>gotra by birth</small>' : ''}</label>
+      <input type="text" id="f-gotra" maxlength="40" list="gotras" value="${esc(p.gotra)}">
+      ${isSpouse(p) ? `
+      <label for="f-father">Father's name <small>family they were born into</small></label>
+      <input type="text" id="f-father" maxlength="60" value="${esc(p.fatherName)}">
+      <label for="f-mother">Mother's name</label>
+      <input type="text" id="f-mother" maxlength="60" value="${esc(p.motherName)}">` : ''}
+      <label for="f-note">Short note</label>
+      <textarea id="f-note" maxlength="240" rows="3" placeholder="What the family remembers about them">${esc(p.note)}</textarea>
+      <div class="count" id="f-count">${(p.note || '').length}/240</div>
+      <div class="form-actions"><button type="submit" class="btn primary">Save</button><button type="button" class="btn" data-a="cancel">Cancel</button></div>
+    </form>`;
+}
+function renderPanel(fresh) {
+  const p = P.get(selected); if (!p) return closePanel();
+  if (!admin) editing = false;
+  pbody.innerHTML = editing ? formHTML(p) : viewHTML(p);
+  if (fresh) panel.scrollTop = 0;
+  if (editing) { const n = $('#f-name'); setTimeout(() => { if (!n.isConnected) return; n.focus({ preventScroll: true }); if (n.value === 'New member') n.select(); }, 350); }
+}
+panel.addEventListener('click', e => {
+  e.stopPropagation();
+  const go = e.target.closest('[data-go]'); if (go) return select(go.dataset.go);
+  const a = e.target.closest('[data-a]')?.dataset.a; if (!a) return;
+  const id = selected;
+  if (a === 'close') return closePanel();
+  if (!admin) return;
+  if (a === 'edit') { editing = true; draftPhoto = null; renderPanel(true); }
+  else if (a === 'cancel') {
+    const p = P.get(id);
+    if (p && p.name === 'New member' && !p.note && !p.nickname && !p.photo && !kidsOf(id).length && !spOf(id).length && (p.parentId || p.spouseOf)) { removePerson(id); return; }
+    editing = false; renderPanel();
+  }
+  else if (a === 'child') addChild(id);
+  else if (a === 'spouse') addSpouse(id);
+  else if (a === 'parents') addParents(id);
+  else if (a === 'sibling') addSibling(id);
+  else if (a === 'me') { data.selfId = id; touch(); render(); renderPanel(); toast('Marked as you'); }
+  else if (a === 'remove') { confirmRemove = true; renderPanel(); }
+  else if (a === 'remove-no') { confirmRemove = false; renderPanel(); }
+  else if (a === 'remove-yes') removePerson(id);
+  else if (a === 'nophoto') { snapshotForm(); draftPhoto = ''; rerenderForm(); }
+});
+let formSnap = null;
+function snapshotForm() {
+  formSnap = { name: $('#f-name').value, nickname: $('#f-nick').value, gotra: $('#f-gotra').value, note: $('#f-note').value, gender: pbody.querySelector('input[name=g]:checked')?.value,
+    father: $('#f-father')?.value, mother: $('#f-mother')?.value };
+}
+function rerenderForm() {
+  renderPanel();
+  if (!formSnap) return;
+  $('#f-name').value = formSnap.name; $('#f-nick').value = formSnap.nickname; $('#f-gotra').value = formSnap.gotra; $('#f-note').value = formSnap.note;
+  const r = pbody.querySelector(`input[name=g][value="${formSnap.gender}"]`); if (r) r.checked = true;
+  $('#f-count').textContent = formSnap.note.length + '/240';
+  if ($('#f-father')) { $('#f-father').value = formSnap.father || ''; $('#f-mother').value = formSnap.mother || ''; }
+}
+panel.addEventListener('change', async e => {
+  if (e.target.id !== 'f-photo' || !e.target.files[0]) return;
+  try { snapshotForm(); draftPhoto = await readPhoto(e.target.files[0]); rerenderForm(); }
+  catch (err) { toast('That file could not be read as an image. Try a JPG or PNG.'); }
+});
+panel.addEventListener('input', e => { if (e.target.id === 'f-note') $('#f-count').textContent = e.target.value.length + '/240'; });
+panel.addEventListener('submit', e => {
+  e.preventDefault();
+  if (!admin) return;
+  const p = P.get(selected); if (!p) return;
+  p.name = $('#f-name').value.trim() || 'Unnamed';
+  p.nickname = $('#f-nick').value.trim();
+  p.gender = pbody.querySelector('input[name=g]:checked')?.value || 'M';
+  p.gotra = $('#f-gotra').value.trim();
+  p.note = $('#f-note').value.trim();
+  if ($('#f-father')) { p.fatherName = $('#f-father').value.trim(); p.motherName = $('#f-mother').value.trim(); }
+  if (draftPhoto !== null) p.photo = draftPhoto;
+  editing = false; draftPhoto = null; formSnap = null;
+  touch(); render(); renderPanel();
+  const el = els.get(p.id); if (el) { el.classList.remove('bloom'); void el.offsetWidth; el.classList.add('bloom'); }
+  toast('Saved');
+});
+
+/* ---------- Search ---------- */
+const q = $('#q'), results = $('#results');
+let hits = [], hitIdx = 0;
+function showResults() {
+  const s = q.value.trim().toLowerCase();
+  if (!s) { results.hidden = true; return; }
+  hits = data.people.filter(p => p.name.toLowerCase().includes(s) || (p.nickname || '').toLowerCase().includes(s)).slice(0, 7);
+  hitIdx = 0;
+  results.innerHTML = hits.length ? hits.map((p, i) => `<button type="button" data-id="${esc(p.id)}" class="${i === 0 ? 'on' : ''}">${esc(p.name)}${p.nickname ? `<small>${esc(p.nickname)}</small>` : ''}</button>`).join('') : '<div class="none">No one by that name yet</div>';
+  results.hidden = false;
+}
+function pick(id) { results.hidden = true; q.value = ''; q.blur(); select(id); }
+q.addEventListener('input', showResults);
+q.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault(); if (!hits.length) return;
+    hitIdx = (hitIdx + (e.key === 'ArrowDown' ? 1 : -1) + hits.length) % hits.length;
+    [...results.querySelectorAll('button')].forEach((b, i) => b.classList.toggle('on', i === hitIdx));
+  } else if (e.key === 'Enter' && hits[hitIdx]) pick(hits[hitIdx].id);
+  else if (e.key === 'Escape') { results.hidden = true; q.blur(); }
+});
+results.addEventListener('mousedown', e => e.preventDefault());
+results.addEventListener('click', e => { const b = e.target.closest('[data-id]'); if (b) pick(b.dataset.id); });
+q.addEventListener('blur', () => setTimeout(() => results.hidden = true, 120));
+
+/* ---------- Admin access ----------
+   The password is stored only as a salted SHA-256 hash inside the family file.
+   This hides the editing tools from family members; it is not server-side security. */
+async function hashPw(pw, salt) {
+  let h = new TextEncoder().encode(salt + ':' + pw);
+  for (let i = 0; i < 2000; i++) h = new Uint8Array(await crypto.subtle.digest('SHA-256', h));
+  return [...h].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+const authModal = $('#authModal'), authCard = $('#authCard'), auMsg = $('#au-msg');
+let authMode = 'unlock', fails = 0, lockedUntil = 0;
+function openAuth(mode) {
+  authMode = mode;
+  $('#au-pass').value = ''; $('#au-pass2').value = ''; auMsg.textContent = ''; auMsg.classList.remove('err');
+  $('#au-confirm').hidden = mode === 'unlock';
+  $('#au-pass').autocomplete = mode === 'unlock' ? 'current-password' : 'new-password';
+  $('#au-title').textContent = mode === 'unlock' ? 'Admin access' : mode === 'setup' ? 'Set an admin password' : 'Change admin password';
+  $('#au-text').textContent = mode === 'unlock' ? 'Enter the admin password to edit the family tree.'
+    : mode === 'setup' ? 'No password has been set yet. Choose one now. You will need it every time you edit the tree.'
+    : 'Choose a new password. It takes effect once you publish the updated family file.';
+  $('#au-go').textContent = mode === 'unlock' ? 'Unlock' : 'Save password';
+  authModal.hidden = false;
+  setTimeout(() => $('#au-pass').focus(), 50);
+}
+function authError(msg) {
+  auMsg.textContent = msg; auMsg.classList.add('err');
+  authCard.classList.remove('shake'); void authCard.offsetWidth; authCard.classList.add('shake');
+}
+$('#authForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!crypto?.subtle) return authError('Editing needs a secure (https) connection. Open the tree over https and try again.');
+  const pw = $('#au-pass').value;
+  if (authMode === 'unlock') {
+    if (Date.now() < lockedUntil) return authError(`Too many tries. Wait ${Math.ceil((lockedUntil - Date.now()) / 1000)} seconds.`);
+    const h = await hashPw(pw, data.admin.salt);
+    if (h !== data.admin.hash) {
+      fails++;
+      if (fails >= 5) { lockedUntil = Date.now() + 30000; fails = 0; return authError('Too many tries. Wait 30 seconds.'); }
+      return authError('That password is not right.');
+    }
+    fails = 0; authModal.hidden = true; setAdmin(true, h);
+  } else {
+    if (pw.length < 6) return authError('Use at least 6 characters.');
+    if (pw !== $('#au-pass2').value) return authError('The two passwords do not match.');
+    const salt = [...crypto.getRandomValues(new Uint8Array(12))].map(b => b.toString(16).padStart(2, '0')).join('');
+    const hash = await hashPw(pw, salt);
+    data.admin = { salt, hash }; touch();
+    authModal.hidden = true;
+    if (authMode === 'setup') setAdmin(true, hash); else { rememberSession(hash); toast('Password changed. Download the family file to publish it.'); updateMeta(); }
+  }
+});
+$('#au-cancel').addEventListener('click', () => authModal.hidden = true);
+authModal.addEventListener('click', e => { if (e.target === authModal) authModal.hidden = true; });
+function rememberSession(h) { try { h ? sessionStorage.setItem(SESSION_KEY, h) : sessionStorage.removeItem(SESSION_KEY); } catch (e) {} }
+function setAdmin(on, h, quiet) {
+  admin = on;
+  rememberSession(on ? h : null);
+  document.body.classList.toggle('admin', on);
+  $('#adminLbl').textContent = on ? 'Lock' : 'Admin';
+  $('#shackle').setAttribute('d', on ? 'M5.2 7V4.8a2.8 2.8 0 015.5-.7' : 'M5.2 7V4.8a2.8 2.8 0 015.6 0V7');
+  $('#adminBtn').setAttribute('aria-label', on ? 'Lock editing' : 'Admin access');
+  if (!on) { $('#styleModal').hidden = true; $('#dataModal').hidden = true; }
+  if (selected) { editing = false; confirmRemove = false; renderPanel(); }
+  updateMeta();
+  if (!quiet) toast(on ? 'Editing unlocked. Hover a portrait for + Child and + Spouse.' : 'Editing locked');
+}
+$('#adminBtn').addEventListener('click', () => {
+  if (admin) return setAdmin(false);
+  openAuth(data.admin?.hash ? 'unlock' : 'setup');
+});
+
+/* ---------- Style picker ---------- */
+const styleModal = $('#styleModal');
+document.querySelectorAll('#opt-frame path[data-frame]').forEach(p => p.setAttribute('d', FRAMES[p.dataset.frame]));
+$('#styleBtn').addEventListener('click', () => {
+  const s = style();
+  for (const k of ['palette', 'frame', 'lines']) { const r = styleModal.querySelector(`input[name=${k}][value="${s[k]}"]`); if (r) r.checked = true; }
+  styleModal.hidden = false;
+});
+styleModal.addEventListener('change', e => {
+  if (!admin || !e.target.name) return;
+  data.style = { ...style(), [e.target.name]: e.target.value };
+  touch(); applyStyle(); render({ dur: 400 });
+  if (selected) renderPanel();
+});
+$('#st-close').addEventListener('click', () => { styleModal.hidden = true; toast('Style saved'); });
+
+/* ---------- Family file ---------- */
+const dataModal = $('#dataModal'), dmMsg = $('#dm-msg');
+let discardArmed = false;
+function dm(msg, err) { dmMsg.textContent = msg; dmMsg.classList.toggle('err', !!err); }
+$('#dataBtn').addEventListener('click', () => {
+  $('#dm-family').value = data.family || '';
+  $('#dm-json').value = '';
+  dm(isDirty() ? 'You have edits that are not published yet.' : 'Everything matches the published family file.');
+  discardArmed = false; $('#dm-discard').textContent = 'Discard my edits'; $('#dm-discard').disabled = !isDirty();
+  dataModal.hidden = false;
+});
+$('#dm-close').addEventListener('click', () => dataModal.hidden = true);
+dataModal.addEventListener('click', e => { if (e.target === dataModal) dataModal.hidden = true; });
+$('#dm-family').addEventListener('input', e => { data.family = e.target.value.trim(); touch(); updateMeta(); });
+const fileText = () => JSON.stringify(data, null, 1);
+$('#dm-download').addEventListener('click', async () => {
+  const dl = window.claude?.use ? await window.claude.use('downloads').catch(() => null) : null;
+  if (dl) {
+    try { await dl.save({ filename: 'family.json', data: fileText() }); dm('Saved family.json. Replace the file where the tree is hosted to publish it.'); }
+    catch (e) { dm(e?.code === 'declined' ? 'Download cancelled.' : 'The download did not work here. Use Copy as text instead.', e?.code !== 'declined'); }
+    return;
+  }
+  try {
+    const url = URL.createObjectURL(new Blob([fileText()], { type: 'application/json' }));
+    const a = document.createElement('a'); a.href = url; a.download = 'family.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    dm('If no download started, use Copy as text and save it as family.json.');
+  } catch (e) { dm('This browser blocked the download. Use Copy as text instead.', true); }
+});
+$('#dm-copy').addEventListener('click', () => {
+  const text = fileText();
+  const fallback = () => { const ta = $('#dm-json'); ta.value = text; ta.focus(); ta.select(); dm('The text is selected below. Press Ctrl+C or ⌘C to copy it.'); };
+  if (!navigator.clipboard) return fallback();
+  navigator.clipboard.writeText(text).then(() => dm('Copied. Save it as family.json to publish.'), fallback);
+});
+function replaceData(d) {
+  data = d; collapsed.clear(); closePanel();
+  for (const el of els.values()) el.remove(); els.clear();
+  for (const L of linkEls.values()) L.g.remove(); linkEls.clear();
+  for (const K of knotEls.values()) K.el.remove(); knotEls.clear();
+  for (const k in cur) delete cur[k];
+  boot();
+  $('#dm-family').value = data.family || '';
+}
+function loadText(text, name) {
+  try {
+    const d = JSON.parse(text); if (!valid(d)) throw 0;
+    if (!d.admin && data.admin) d.admin = data.admin;
+    d.updatedAt = Date.now(); data = d; saveDraft(); replaceData(d);
+    dm(`Loaded ${d.people.length} people${name ? ' from ' + name : ''}.`);
+  } catch (e) { dm(`${name || 'That text'} is not a family file. It needs a "people" list where each person has an id and a name.`, true); }
+}
+$('#dm-apply').addEventListener('click', () => loadText($('#dm-json').value));
+$('#dm-file').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const fr = new FileReader(); fr.onload = () => loadText(fr.result, f.name); fr.readAsText(f); e.target.value = '';
+});
+$('#dm-pass').addEventListener('click', () => { dataModal.hidden = true; openAuth('change'); });
+$('#dm-discard').addEventListener('click', e => {
+  if (!discardArmed) { discardArmed = true; e.currentTarget.textContent = 'Click again to discard'; return; }
+  discardArmed = false; e.currentTarget.textContent = 'Discard my edits';
+  dropDraft(); replaceData(clone(fileData)); applyStyle();
+  if (!data.admin?.hash || sessionHash() !== data.admin.hash) setAdmin(false, null, true);
+  dm('Your edits were discarded. The tree matches the published file.');
+  e.currentTarget.disabled = true;
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (!authModal.hidden) authModal.hidden = true;
+  else if (!dataModal.hidden) dataModal.hidden = true;
+  else if (!styleModal.hidden) styleModal.hidden = true;
+  else if (selected) closePanel();
+});
+
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2800); }
+$('#welcomeClose').addEventListener('click', () => {
+  welcomeClosed = true; $('#welcome').hidden = true;
+  try { sessionStorage.setItem('apna-ghar-tip', '1'); } catch (e) {}
+});
+
+/* Phone bottom sheet: drag the handle down to close */
+let sheetY = null;
+$('#pHandle').addEventListener('pointerdown', e => { sheetY = e.clientY; panel.style.transition = 'none'; $('#pHandle').setPointerCapture(e.pointerId); });
+$('#pHandle').addEventListener('pointermove', e => { if (sheetY === null) return; panel.style.transform = `translateY(${Math.max(0, e.clientY - sheetY)}px)`; });
+const endSheet = e => {
+  if (sheetY === null) return;
+  const dy = e.clientY - sheetY; sheetY = null;
+  panel.style.transition = ''; panel.style.transform = '';
+  if (dy > 80) closePanel();
+};
+$('#pHandle').addEventListener('pointerup', endSheet); $('#pHandle').addEventListener('pointercancel', endSheet);
+
+$('#zIn').addEventListener('click', () => zoomCenter(1.3));
+$('#zOut').addEventListener('click', () => zoomCenter(1 / 1.3));
+$('#zFit').addEventListener('click', () => fit());
+
+function sessionHash() { try { return sessionStorage.getItem(SESSION_KEY); } catch (e) { return null; } }
+function boot() {
+  applyStyle();
+  world.classList.add('intro');
+  render({ intro: true });
+  fit(0);
+  // On a phone a big tree fits too small to read: open on "you" (or the eldest) at a readable size instead
+  const r = stage.getBoundingClientRect();
+  if (r.width < 720 && cam.k < .45) {
+    const id = target[data.selfId] ? data.selfId : roots()[0], t = target[id], k = .62;
+    animCam({ k, x: r.width / 2 - (t.x + CW / 2) * k, y: r.height * .42 - (t.y + CH / 2) * k }, 0);
+  }
+  setTimeout(() => world.classList.remove('intro'), 2600);
+}
+async function init() {
+  try {
+    const r = await fetch('family.json', { cache: 'no-cache' });
+    if (r.ok) { const d = await r.json(); if (valid(d)) fileData = d; }
+  } catch (e) {}
+  if (!fileData) { try { const d = JSON.parse($('#family-data').textContent); if (valid(d)) fileData = d; } catch (e) {} }
+  if (!fileData) { $('#loading').textContent = 'The family file could not be read.'; return; }
+  const draft = loadDraft();
+  if (draft && (draft.updatedAt || 0) > (fileData.updatedAt || 0)) data = draft;
+  else { data = clone(fileData); dropDraft(); }
+  $('#loading').remove();
+  boot();
+  const h = sessionHash();
+  if (h && data.admin?.hash === h) setAdmin(true, h, true);
+}
+init();
+})();
+</script>
