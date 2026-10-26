@@ -1210,7 +1210,7 @@ async function openToken(box, pw) {
 }
 
 /* ---------- Sync: family.json on GitHub is the one shared copy ---------- */
-let remoteSha = null, token = null, pending = false, editVersion = 0, syncing = false, syncTimer = null, syncState = 'idle';
+let remoteSha = null, token = null, pending = false, editVersion = 0, syncing = false, syncTimer = null, syncState = 'idle', lastSyncError = '';
 function loadLocal() { try { const s = localStorage.getItem(LOCAL_KEY); if (!s) return null; const l = JSON.parse(s); return l && valid(l.data) ? l : null; } catch (e) { return null; } }
 function storeLocal() { try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ data, sha: remoteSha, pending })); } catch (e) {} }
 function dropLocal() { try { localStorage.removeItem(LOCAL_KEY); } catch (e) {} }
@@ -1254,9 +1254,11 @@ async function pushRemote() {
     const body = { message: `Update family tree · ${data.people.length} members`, content: b64encode(JSON.stringify(data, null, 1)), branch: SYNC.branch };
     if (remoteSha) body.sha = remoteSha;
     const r = await fetch(`${API}/contents/${SYNC.path}`, { method: 'PUT', headers: ghHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(body) });
+    if (!r.ok) { let m = ''; try { m = (await r.clone().json()).message || ''; } catch (err) {} lastSyncError = `${r.status}${m ? ': ' + m : ''}`; }
     if (r.status === 409 || r.status === 422) { syncing = false; return onConflict(); }
     if (r.status === 401 || r.status === 403 || r.status === 404) { setSync('auth'); toast('GitHub refused the save. Connect GitHub again in Family file.'); return; }
     if (!r.ok) throw new Error('write ' + r.status);
+    lastSyncError = '';
     remoteSha = (await r.json()).content.sha;
     if (editVersion === version) pending = false;
     storeLocal(); setSync(pending ? 'saving' : 'saved');
@@ -1412,16 +1414,27 @@ $('#gh-connect').addEventListener('click', async e => {
   try {
     if (!(await verifyPw(pw))) return dm('That admin password is not right.', true);
     dm('Checking the token with GitHub…');
-    let ok = false;
-    try { const r = await fetch(API, { headers: { Accept: 'application/vnd.github+json', Authorization: 'Bearer ' + t } }); ok = r.ok && !!(await r.json()).permissions?.push; }
+    let r;
+    try { r = await fetch(API, { headers: { Accept: 'application/vnd.github+json', Authorization: 'Bearer ' + t }, cache: 'no-store' }); }
     catch (err) { return dm('Could not reach GitHub. Check your connection and try again.', true); }
-    if (!ok) return dm(`This token cannot write to ${SYNC.repo}. Give it access to that repository with Contents set to Read and write.`, true);
+    if (r.status === 401) return dm('GitHub did not accept this token. Check that you copied all of it and that it has not expired.', true);
+    if (!r.ok) return dm(`This token cannot see the ${SYNC.repo} repository (GitHub said ${r.status}). Give it access to ${SYNC.repo}.`, true);
+    // The real test is a save: write family.json now and report exactly what GitHub says
+    const prevSync = data.sync;
     keepToken(t);
     data.sync = { box: await sealToken(t, pw) };
-    $('#gh-token').value = ''; $('#gh-pass').value = '';
     try { remoteSha = (await fetchRemote()).sha; } catch (err) {}
-    touch(); renderSyncSection();
-    dm('Connected. Every change now saves to GitHub and shows on every device.');
+    dm('Saving the tree to GitHub…');
+    data.updatedAt = Date.now(); editVersion++; pending = true; storeLocal();
+    clearTimeout(syncTimer); await pushRemote();
+    if (syncState === 'saved') {
+      $('#gh-token').value = ''; $('#gh-pass').value = '';
+      renderSyncSection();
+      dm('Connected. Every change now saves to GitHub and shows on every device.');
+    } else {
+      data.sync = prevSync; forgetToken(); storeLocal(); renderSyncSection(); setSync('local');
+      dm(`GitHub did not save the tree${lastSyncError ? ` (${lastSyncError})` : ''}. Make sure the token has Contents set to Read and write for ${SYNC.repo}.`, true);
+    }
   } finally { btn.disabled = false; }
 });
 $('#gh-disconnect').addEventListener('click', async () => {
