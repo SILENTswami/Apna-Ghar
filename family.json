@@ -1,10 +1,35 @@
 {
  "family": "Apna Ghar",
- "updatedAt": 0,
- "style": { "palette": "maroon", "frame": "jharokha", "lines": "vine" },
- "admin": null,
+ "updatedAt": 1793008197992,
+ "style": {
+  "palette": "maroon",
+  "frame": "jharokha",
+  "lines": "vine"
+ },
+ "admin": {
+  "v": 2,
+  "salt": "c3bd658d81243d56db12d7920cac060c",
+  "hash": "f92c13eb7830dc665e0edf4ff6c4fd1983b8c5030b22183e4bbed5da0e03b3c6"
+ },
  "selfId": "me",
  "people": [
-  { "id": "me", "name": "Your name", "nickname": "", "gender": "M", "gotra": "", "note": "", "photo": "", "parentId": null }
- ]
+  {
+   "id": "me",
+   "name": "sahil",
+   "nickname": "sahil",
+   "gender": "M",
+   "gotra": "",
+   "note": "",
+   "photo": "",
+   "parentId": null
+  }
+ ],
+ "sample": false,
+ "sync": {
+  "box": {
+   "salt": "df0542693009b5c7a6299c9d4cbd66f0",
+   "iv": "1121286cc525840447da07fc",
+   "ct": "BtQb/uMjVu44Azu50ke9KiyRIxLMFsduGElQVCpKwo9Jg6FyHEOT7QFaZBDg7oO9JFvMVyZfgPdOID29Bj7oL0ZBWtJF6J1thUxXKwkHdjwpEiSMNdi8BU5QXOD+I1mkEbqQhRTP+x4Qpvz/cQ=="
+  }
+ }
 }
