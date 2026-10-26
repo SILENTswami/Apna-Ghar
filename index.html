@@ -440,17 +440,29 @@ body.panel-open .hint{opacity:0}
 <div id="dataModal" class="modal ui" hidden role="dialog" aria-modal="true" aria-labelledby="dm-title">
   <div class="modal-card form">
     <h3 id="dm-title">Family file</h3>
-    <p>Your edits are saved in this browser. To show them to everyone, download <b>family.json</b> and replace the file where this tree is hosted.</p>
     <label for="dm-family">Family name</label>
     <input type="text" id="dm-family" maxlength="40">
-    <div class="row">
-      <button class="btn primary" type="button" id="dm-download">Download family.json</button>
-      <button class="btn" type="button" id="dm-copy">Copy as text</button>
+    <div class="section">
+      <h4>Save for everyone</h4>
+      <p id="sync-status"></p>
+      <div id="sync-connect" class="form">
+        <label for="gh-token">GitHub access token</label>
+        <input type="password" id="gh-token" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
+        <label for="gh-pass">Admin password</label>
+        <input type="password" id="gh-pass" autocomplete="current-password">
+        <p>Create one on GitHub: Settings → Developer settings → Fine-grained tokens. Pick only the <b>Apna-Ghar</b> repository and set <b>Contents</b> to <b>Read and write</b>. It is saved in the family file locked with your admin password, so you enter it once and every device can use it after you unlock Admin.</p>
+        <div class="row"><button class="btn primary" type="button" id="gh-connect">Connect GitHub</button></div>
+      </div>
+      <div class="row"><button class="btn danger" type="button" id="gh-disconnect">Disconnect GitHub</button></div>
     </div>
     <p class="msg" id="dm-msg" role="status"></p>
     <div class="section">
-      <h4>Load a family file</h4>
-      <p>Open a saved family.json, or paste its text below.</p>
+      <h4>Backup</h4>
+      <p>Keep a copy of the whole tree, or load one back in. Loading replaces the tree for everyone.</p>
+      <div class="row">
+        <button class="btn" type="button" id="dm-download">Download family.json</button>
+        <button class="btn" type="button" id="dm-copy">Copy as text</button>
+      </div>
       <label for="dm-json">Family file text</label>
       <textarea id="dm-json" class="code" rows="6" spellcheck="false" placeholder='{ "family": "…", "people": [ … ] }'></textarea>
       <div class="row">
@@ -463,7 +475,7 @@ body.panel-open .hint{opacity:0}
       <h4>Admin password</h4>
       <div class="row">
         <button class="btn" type="button" id="dm-pass">Change password</button>
-        <button class="btn danger" type="button" id="dm-discard">Discard my edits</button>
+        <button class="btn danger" type="button" id="dm-discard">Reload shared tree</button>
       </div>
     </div>
     <div class="row"><span class="spacer"></span><button class="btn primary" type="button" id="dm-close">Done</button></div>
@@ -477,7 +489,12 @@ body.panel-open .hint{opacity:0}
 (() => {
 const CW = 150, CH = 258, COUPLE = 18, SIB = 44, ROW = 350;
 const ARCH_X = 19, KNOT_Y = 16 + 84;
-const DRAFT_KEY = 'apna-ghar-draft-v2', SESSION_KEY = 'vanshavali-admin-v1';
+const LOCAL_KEY = 'apna-ghar-local-v3', SESSION_KEY = 'apna-ghar-admin-v3', TOKEN_KEY = 'apna-ghar-token-v3';
+// The shared copy of the tree: family.json in this GitHub repository
+const SYNC = { owner: 'SILENTswami', repo: 'Apna-Ghar', branch: 'main', path: 'family.json' };
+const API = `https://api.github.com/repos/${SYNC.owner}/${SYNC.repo}`;
+// Update signal: after each save the admin's page posts here; every open page listens and re-reads family.json from GitHub
+const SIGNAL = 'https://ntfy.sh/apna-ghar-6b138c1cc368678a149b';
 const RM = matchMedia('(prefers-reduced-motion: reduce)');
 const FRAMES = {
   jharokha: 'M0,140 V56 C0,33 28,24 42,14 C49,9 54,5 56,0 C58,5 63,9 70,14 C84,24 112,33 112,56 V140 Z',
@@ -505,9 +522,6 @@ let ARCH = FRAMES.jharokha;
 
 const clone = o => JSON.parse(JSON.stringify(o));
 function valid(d) { return d && Array.isArray(d.people) && d.people.length > 0 && d.people.every(p => p && typeof p.id === 'string' && typeof p.name === 'string'); }
-function loadDraft() { try { const s = localStorage.getItem(DRAFT_KEY); if (!s) return null; const d = JSON.parse(s); return valid(d) ? d : null; } catch (e) { return null; } }
-function saveDraft() { try { localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); } catch (e) { toast('This browser did not save the change. Download the family file to keep it.'); } }
-function dropDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) {} }
 function uid() { return 'p' + Math.random().toString(36).slice(2, 9); }
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
 function initials(name) {
@@ -519,7 +533,6 @@ const ease = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
 const DEVA = '०१२३४५६७८९';
 const deva = n => String(n).split('').map(d => DEVA[d]).join('');
 const roman = n => ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'][n - 1] || String(n);
-const isDirty = () => (data?.updatedAt || 0) > (fileData?.updatedAt || 0);
 
 /* ---------- Model ---------- */
 function index() {
@@ -755,7 +768,7 @@ function updateMeta() {
   $('#famName').textContent = data.family || 'Apna Ghar';
   const m = `${n} ${n === 1 ? 'member' : 'members'} · ${g} ${g === 1 ? 'generation' : 'generations'}`;
   $('#welcome').hidden = n > 3 || welcomeClosed;
-  $('#meta').innerHTML = esc(m) + (admin && isDirty() ? ' · <b>unpublished edits</b>' : '');
+  $('#meta').innerHTML = esc(m) + (admin ? ' · <b>' + esc(syncLabel()) + '</b>' : '');
   document.title = `${data.family || 'Family'} Vanshavali`;
   const gl = new Set([...COMMON_GOTRAS, ...data.people.map(p => p.gotra).filter(Boolean)]);
   $('#gotras').innerHTML = [...gl].sort().map(g => `<option value="${esc(g)}">`).join('');
@@ -908,7 +921,7 @@ function toggleFold(id) {
 }
 
 /* ---------- Editing (admin only) ---------- */
-function touch() { data.sample = false; data.updatedAt = Date.now(); saveDraft(); }
+function touch() { data.sample = false; data.updatedAt = Date.now(); editVersion++; pending = true; storeLocal(); scheduleSync(); }
 function blank(extra) { return { id: uid(), name: 'New member', nickname: '', gender: 'M', gotra: '', note: '', photo: '', ...extra }; }
 function addChild(id) {
   if (!admin) return;
@@ -1161,10 +1174,129 @@ q.addEventListener('blur', () => setTimeout(() => results.hidden = true, 120));
 /* ---------- Admin access ----------
    The password is stored only as a salted SHA-256 hash inside the family file.
    This hides the editing tools from family members; it is not server-side security. */
-async function hashPw(pw, salt) {
+const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+const unhex = h => new Uint8Array(h.match(/../g).map(x => parseInt(x, 16)));
+const randHex = n => hex(crypto.getRandomValues(new Uint8Array(n)));
+function b64encode(s) {
+  const bytes = new TextEncoder().encode(s); let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+const b64decode = b => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\s/g, '')), c => c.charCodeAt(0)));
+async function hashLegacy(pw, salt) {
   let h = new TextEncoder().encode(salt + ':' + pw);
   for (let i = 0; i < 2000; i++) h = new Uint8Array(await crypto.subtle.digest('SHA-256', h));
-  return [...h].map(b => b.toString(16).padStart(2, '0')).join('');
+  return hex(h);
+}
+async function pbkdf2(pw, salt, usage) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, [usage]);
+  const algo = { name: 'PBKDF2', salt: unhex(salt), iterations: 310000, hash: 'SHA-256' };
+  return usage === 'deriveBits' ? hex(await crypto.subtle.deriveBits(algo, base, 256))
+    : crypto.subtle.deriveKey(algo, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+async function verifyPw(pw) {
+  const a = data.admin; if (!a?.hash) return false;
+  return (a.v === 2 ? await pbkdf2(pw, a.salt, 'deriveBits') : await hashLegacy(pw, a.salt)) === a.hash;
+}
+// The GitHub token is kept in family.json encrypted with the admin password, so any device can unlock it with that password
+async function sealToken(tok, pw) {
+  const salt = randHex(16), iv = randHex(12);
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: unhex(iv) }, await pbkdf2(pw, salt, 'deriveKey'), new TextEncoder().encode(tok));
+  return { salt, iv, ct: btoa(String.fromCharCode(...new Uint8Array(ct))) };
+}
+async function openToken(box, pw) {
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unhex(box.iv) }, await pbkdf2(pw, box.salt, 'deriveKey'), Uint8Array.from(atob(box.ct), c => c.charCodeAt(0)));
+  return new TextDecoder().decode(pt);
+}
+
+/* ---------- Sync: family.json on GitHub is the one shared copy ---------- */
+let remoteSha = null, token = null, pending = false, editVersion = 0, syncing = false, syncTimer = null, syncState = 'idle';
+function loadLocal() { try { const s = localStorage.getItem(LOCAL_KEY); if (!s) return null; const l = JSON.parse(s); return l && valid(l.data) ? l : null; } catch (e) { return null; } }
+function storeLocal() { try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ data, sha: remoteSha, pending })); } catch (e) {} }
+function dropLocal() { try { localStorage.removeItem(LOCAL_KEY); } catch (e) {} }
+function keepToken(t) { token = t; try { sessionStorage.setItem(TOKEN_KEY, t); } catch (e) {} }
+function forgetToken() { token = null; try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+const ghHeaders = (extra = {}) => ({ Accept: 'application/vnd.github+json', ...(token ? { Authorization: 'Bearer ' + token } : {}), ...extra });
+
+async function fetchRemote() {
+  const url = `${API}/contents/${SYNC.path}?ref=${SYNC.branch}`;
+  const r = await fetch(url, { headers: ghHeaders(), cache: 'no-store' });
+  if (!r.ok) throw new Error('read ' + r.status);
+  const j = await r.json();
+  let text;
+  if (j.encoding === 'base64' && j.content) text = b64decode(j.content);
+  else { // files over 1 MB come back without content; ask for the raw file instead
+    const r2 = await fetch(url, { headers: ghHeaders({ Accept: 'application/vnd.github.raw+json' }), cache: 'no-store' });
+    if (!r2.ok) throw new Error('read ' + r2.status);
+    text = await r2.text();
+  }
+  const d = JSON.parse(text); if (!valid(d)) throw new Error('invalid');
+  return { data: d, sha: j.sha };
+}
+function setSync(s) { syncState = s; updateMeta(); }
+function syncLabel() {
+  return ({ saving: 'Saving for everyone…', saved: 'Saved for everyone', local: 'Saved on this device only', offline: 'Offline · will retry', auth: 'GitHub access needs renewing', conflict: 'Reloaded latest' })[syncState]
+    || (token ? 'Synced with GitHub' : 'Not connected to GitHub');
+}
+function scheduleSync(delay = 1500) {
+  clearTimeout(syncTimer);
+  if (!pending) return;
+  if (!token) return setSync('local');
+  setSync('saving');
+  syncTimer = setTimeout(pushRemote, delay);
+}
+async function pushRemote() {
+  if (!token || !pending) return;
+  if (syncing) return scheduleSync(800);
+  syncing = true;
+  const version = editVersion;
+  try {
+    const body = { message: `Update family tree · ${data.people.length} members`, content: b64encode(JSON.stringify(data, null, 1)), branch: SYNC.branch };
+    if (remoteSha) body.sha = remoteSha;
+    const r = await fetch(`${API}/contents/${SYNC.path}`, { method: 'PUT', headers: ghHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(body) });
+    if (r.status === 409 || r.status === 422) { syncing = false; return onConflict(); }
+    if (r.status === 401 || r.status === 403 || r.status === 404) { setSync('auth'); toast('GitHub refused the save. Connect GitHub again in Family file.'); return; }
+    if (!r.ok) throw new Error('write ' + r.status);
+    remoteSha = (await r.json()).content.sha;
+    if (editVersion === version) pending = false;
+    storeLocal(); setSync(pending ? 'saving' : 'saved');
+    signalUpdate();
+  } catch (e) {
+    setSync('offline'); clearTimeout(syncTimer); syncTimer = setTimeout(pushRemote, 15000);
+  } finally {
+    syncing = false;
+    if (pending && syncState === 'saving') scheduleSync(300);
+  }
+}
+async function onConflict() {
+  try {
+    const r = await fetchRemote();
+    remoteSha = r.sha; pending = false; storeLocal();
+    replaceData(r.data, true); setSync('conflict');
+    toast('The tree was changed on another device. You are now seeing the latest version, so please redo your last change.');
+  } catch (e) { setSync('offline'); }
+}
+
+/* Update signal */
+function signalUpdate() { fetch(SIGNAL, { method: 'POST', body: remoteSha || 'updated' }).catch(() => {}); }
+async function pullLatest(announce) {
+  if (pending || syncing || editing) return;
+  try {
+    const r = await fetchRemote();
+    if (r.sha === remoteSha) return;
+    remoteSha = r.sha; data = r.data; storeLocal();
+    replaceData(r.data, true);
+    if (announce) toast('The family tree was just updated');
+  } catch (e) {}
+}
+function listenForUpdates() {
+  if (!window.EventSource) return;
+  const es = new EventSource(SIGNAL + '/sse');
+  es.onmessage = e => {
+    try { const m = JSON.parse(e.data); if (m.event === 'message' && m.message !== remoteSha) pullLatest(true); } catch (err) {}
+  };
+  // Phones pause connections while the screen is off, so check once when the tree comes back into view
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) pullLatest(true); });
 }
 const authModal = $('#authModal'), authCard = $('#authCard'), auMsg = $('#au-msg');
 let authMode = 'unlock', fails = 0, lockedUntil = 0;
@@ -1188,25 +1320,34 @@ function authError(msg) {
 $('#authForm').addEventListener('submit', async e => {
   e.preventDefault();
   if (!crypto?.subtle) return authError('Editing needs a secure (https) connection. Open the tree over https and try again.');
-  const pw = $('#au-pass').value;
-  if (authMode === 'unlock') {
-    if (Date.now() < lockedUntil) return authError(`Too many tries. Wait ${Math.ceil((lockedUntil - Date.now()) / 1000)} seconds.`);
-    const h = await hashPw(pw, data.admin.salt);
-    if (h !== data.admin.hash) {
-      fails++;
-      if (fails >= 5) { lockedUntil = Date.now() + 30000; fails = 0; return authError('Too many tries. Wait 30 seconds.'); }
-      return authError('That password is not right.');
+  const pw = $('#au-pass').value, go = $('#au-go'), label = go.textContent;
+  go.disabled = true; go.textContent = 'Checking…';
+  try {
+    if (authMode === 'unlock') {
+      if (Date.now() < lockedUntil) return authError(`Too many tries. Wait ${Math.ceil((lockedUntil - Date.now()) / 1000)} seconds.`);
+      if (!(await verifyPw(pw))) {
+        fails++;
+        if (fails >= 5) { lockedUntil = Date.now() + 30000; fails = 0; return authError('Too many tries. Wait 30 seconds.'); }
+        return authError('That password is not right.');
+      }
+      fails = 0;
+      if (data.sync?.box) { try { keepToken(await openToken(data.sync.box, pw)); } catch (err) { forgetToken(); } }
+      authModal.hidden = true; setAdmin(true, data.admin.hash);
+      if (pending) scheduleSync(300);
+    } else {
+      if (pw.length < 8) return authError('Use at least 8 characters.');
+      if (pw !== $('#au-pass2').value) return authError('The two passwords do not match.');
+      const salt = randHex(16);
+      data.admin = { v: 2, salt, hash: await pbkdf2(pw, salt, 'deriveBits') };
+      if (data.sync?.box) {
+        if (token) data.sync.box = await sealToken(token, pw);
+        else { data.sync = null; toast('Connect GitHub again in Family file to keep saving for everyone.'); }
+      }
+      touch(); authModal.hidden = true;
+      if (authMode === 'setup') setAdmin(true, data.admin.hash);
+      else { rememberSession(data.admin.hash); toast('Password changed'); updateMeta(); }
     }
-    fails = 0; authModal.hidden = true; setAdmin(true, h);
-  } else {
-    if (pw.length < 6) return authError('Use at least 6 characters.');
-    if (pw !== $('#au-pass2').value) return authError('The two passwords do not match.');
-    const salt = [...crypto.getRandomValues(new Uint8Array(12))].map(b => b.toString(16).padStart(2, '0')).join('');
-    const hash = await hashPw(pw, salt);
-    data.admin = { salt, hash }; touch();
-    authModal.hidden = true;
-    if (authMode === 'setup') setAdmin(true, hash); else { rememberSession(hash); toast('Password changed. Download the family file to publish it.'); updateMeta(); }
-  }
+  } finally { go.disabled = false; go.textContent = label; }
 });
 $('#au-cancel').addEventListener('click', () => authModal.hidden = true);
 authModal.addEventListener('click', e => { if (e.target === authModal) authModal.hidden = true; });
@@ -1218,7 +1359,7 @@ function setAdmin(on, h, quiet) {
   $('#adminLbl').textContent = on ? 'Lock' : 'Admin';
   $('#shackle').setAttribute('d', on ? 'M5.2 7V4.8a2.8 2.8 0 015.5-.7' : 'M5.2 7V4.8a2.8 2.8 0 015.6 0V7');
   $('#adminBtn').setAttribute('aria-label', on ? 'Lock editing' : 'Admin access');
-  if (!on) { $('#styleModal').hidden = true; $('#dataModal').hidden = true; }
+  if (!on) { forgetToken(); $('#styleModal').hidden = true; $('#dataModal').hidden = true; }
   if (selected) { editing = false; confirmRemove = false; renderPanel(); }
   updateMeta();
   if (!quiet) toast(on ? 'Editing unlocked. Hover a portrait for + Child and + Spouse.' : 'Editing locked');
@@ -1248,12 +1389,45 @@ $('#st-close').addEventListener('click', () => { styleModal.hidden = true; toast
 const dataModal = $('#dataModal'), dmMsg = $('#dm-msg');
 let discardArmed = false;
 function dm(msg, err) { dmMsg.textContent = msg; dmMsg.classList.toggle('err', !!err); }
+function renderSyncSection() {
+  const on = !!data.sync?.box;
+  $('#sync-status').textContent = !on ? 'Not connected yet. Your changes stay on this device until you connect GitHub.'
+    : token ? `Connected to github.com/${SYNC.owner}/${SYNC.repo}. Every change saves there and appears on every device within seconds.`
+    : 'Connected, but this device could not unlock the token. Enter the token again below.';
+  $('#sync-connect').hidden = on && !!token;
+  $('#gh-disconnect').hidden = !on;
+}
 $('#dataBtn').addEventListener('click', () => {
   $('#dm-family').value = data.family || '';
   $('#dm-json').value = '';
-  dm(isDirty() ? 'You have edits that are not published yet.' : 'Everything matches the published family file.');
-  discardArmed = false; $('#dm-discard').textContent = 'Discard my edits'; $('#dm-discard').disabled = !isDirty();
+  renderSyncSection();
+  dm(pending ? (token ? 'Saving your latest change…' : 'Some changes are saved on this device only.') : '');
+  discardArmed = false; $('#dm-discard').textContent = 'Reload shared tree';
   dataModal.hidden = false;
+});
+$('#gh-connect').addEventListener('click', async e => {
+  const t = $('#gh-token').value.trim(), pw = $('#gh-pass').value, btn = e.currentTarget;
+  if (!t) return dm('Paste your GitHub token first.', true);
+  btn.disabled = true;
+  try {
+    if (!(await verifyPw(pw))) return dm('That admin password is not right.', true);
+    dm('Checking the token with GitHub…');
+    let ok = false;
+    try { const r = await fetch(API, { headers: { Accept: 'application/vnd.github+json', Authorization: 'Bearer ' + t } }); ok = r.ok && !!(await r.json()).permissions?.push; }
+    catch (err) { return dm('Could not reach GitHub. Check your connection and try again.', true); }
+    if (!ok) return dm(`This token cannot write to ${SYNC.repo}. Give it access to that repository with Contents set to Read and write.`, true);
+    keepToken(t);
+    data.sync = { box: await sealToken(t, pw) };
+    $('#gh-token').value = ''; $('#gh-pass').value = '';
+    try { remoteSha = (await fetchRemote()).sha; } catch (err) {}
+    touch(); renderSyncSection();
+    dm('Connected. Every change now saves to GitHub and shows on every device.');
+  } finally { btn.disabled = false; }
+});
+$('#gh-disconnect').addEventListener('click', async () => {
+  data.sync = null; touch(); clearTimeout(syncTimer); await pushRemote();
+  forgetToken(); renderSyncSection(); setSync('idle');
+  dm('Disconnected. Changes now stay on this device.');
 });
 $('#dm-close').addEventListener('click', () => dataModal.hidden = true);
 dataModal.addEventListener('click', e => { if (e.target === dataModal) dataModal.hidden = true; });
@@ -1262,7 +1436,7 @@ const fileText = () => JSON.stringify(data, null, 1);
 $('#dm-download').addEventListener('click', async () => {
   const dl = window.claude?.use ? await window.claude.use('downloads').catch(() => null) : null;
   if (dl) {
-    try { await dl.save({ filename: 'family.json', data: fileText() }); dm('Saved family.json. Replace the file where the tree is hosted to publish it.'); }
+    try { await dl.save({ filename: 'family.json', data: fileText() }); dm('Saved a backup copy of family.json.'); }
     catch (e) { dm(e?.code === 'declined' ? 'Download cancelled.' : 'The download did not work here. Use Copy as text instead.', e?.code !== 'declined'); }
     return;
   }
@@ -1278,10 +1452,18 @@ $('#dm-copy').addEventListener('click', () => {
   const text = fileText();
   const fallback = () => { const ta = $('#dm-json'); ta.value = text; ta.focus(); ta.select(); dm('The text is selected below. Press Ctrl+C or ⌘C to copy it.'); };
   if (!navigator.clipboard) return fallback();
-  navigator.clipboard.writeText(text).then(() => dm('Copied. Save it as family.json to publish.'), fallback);
+  navigator.clipboard.writeText(text).then(() => dm('Copied. Paste it somewhere safe as a backup.'), fallback);
 });
-function replaceData(d) {
-  data = d; collapsed.clear(); closePanel();
+function replaceData(d, soft) {
+  data = d;
+  if (soft) { // an update from another device: keep the view where it is and redraw changes in place
+    for (const id of [...collapsed]) if (!data.people.some(p => p.id === id)) collapsed.delete(id);
+    const keep = selected;
+    applyStyle(); render({ dur: 500 });
+    if (keep && P.has(keep)) { if (!editing) renderPanel(); } else if (keep) closePanel();
+    return;
+  }
+  collapsed.clear(); closePanel();
   for (const el of els.values()) el.remove(); els.clear();
   for (const L of linkEls.values()) L.g.remove(); linkEls.clear();
   for (const K of knotEls.values()) K.el.remove(); knotEls.clear();
@@ -1293,7 +1475,8 @@ function loadText(text, name) {
   try {
     const d = JSON.parse(text); if (!valid(d)) throw 0;
     if (!d.admin && data.admin) d.admin = data.admin;
-    d.updatedAt = Date.now(); data = d; saveDraft(); replaceData(d);
+    if (!d.sync && data.sync) d.sync = data.sync;
+    replaceData(d); touch();
     dm(`Loaded ${d.people.length} people${name ? ' from ' + name : ''}.`);
   } catch (e) { dm(`${name || 'That text'} is not a family file. It needs a "people" list where each person has an id and a name.`, true); }
 }
@@ -1303,13 +1486,16 @@ $('#dm-file').addEventListener('change', e => {
   const fr = new FileReader(); fr.onload = () => loadText(fr.result, f.name); fr.readAsText(f); e.target.value = '';
 });
 $('#dm-pass').addEventListener('click', () => { dataModal.hidden = true; openAuth('change'); });
-$('#dm-discard').addEventListener('click', e => {
-  if (!discardArmed) { discardArmed = true; e.currentTarget.textContent = 'Click again to discard'; return; }
-  discardArmed = false; e.currentTarget.textContent = 'Discard my edits';
-  dropDraft(); replaceData(clone(fileData)); applyStyle();
-  if (!data.admin?.hash || sessionHash() !== data.admin.hash) setAdmin(false, null, true);
-  dm('Your edits were discarded. The tree matches the published file.');
-  e.currentTarget.disabled = true;
+$('#dm-discard').addEventListener('click', async e => {
+  const btn = e.currentTarget;
+  if (!discardArmed) { discardArmed = true; btn.textContent = 'Click again to reload'; return; }
+  discardArmed = false; btn.textContent = 'Reload shared tree';
+  try { const r = await fetchRemote(); fileData = r.data; remoteSha = r.sha; }
+  catch (err) { return dm('Could not reach GitHub, so nothing was changed.', true); }
+  clearTimeout(syncTimer); pending = false; dropLocal();
+  replaceData(clone(fileData)); storeLocal();
+  if (!data.admin?.hash || sessionHash() !== data.admin.hash) setAdmin(false, null, true); else setSync('idle');
+  dm('Showing the shared tree from GitHub. Changes that only lived on this device were dropped.');
 });
 
 document.addEventListener('keydown', e => {
@@ -1358,19 +1544,32 @@ function boot() {
   setTimeout(() => world.classList.remove('intro'), 2600);
 }
 async function init() {
-  try {
-    const r = await fetch('family.json', { cache: 'no-cache' });
-    if (r.ok) { const d = await r.json(); if (valid(d)) fileData = d; }
-  } catch (e) {}
-  if (!fileData) { try { const d = JSON.parse($('#family-data').textContent); if (valid(d)) fileData = d; } catch (e) {} }
-  if (!fileData) { $('#loading').textContent = 'The family file could not be read.'; return; }
-  const draft = loadDraft();
-  if (draft && (draft.updatedAt || 0) > (fileData.updatedAt || 0)) data = draft;
-  else { data = clone(fileData); dropDraft(); }
+  const local = loadLocal();
+  let remote = null;
+  try { remote = await fetchRemote(); } catch (e) {}
+  if (remote) fileData = remote.data;
+  else { // GitHub unreachable: fall back to the copy served with the page, then the one built into it
+    try { const r = await fetch('family.json', { cache: 'no-cache' }); if (r.ok) { const d = await r.json(); if (valid(d)) fileData = d; } } catch (e) {}
+    if (!fileData) { try { const d = JSON.parse($('#family-data').textContent); if (valid(d)) fileData = d; } catch (e) {} }
+  }
+  if (!fileData && !local) { $('#loading').textContent = 'The family file could not be read.'; return; }
+  let note = '';
+  if (local?.pending && (!remote || local.sha === remote.sha)) { data = local.data; remoteSha = local.sha; pending = true; }
+  else if (!remote && local && (local.data.updatedAt || 0) >= (fileData?.updatedAt || 0)) { data = local.data; remoteSha = local.sha; }
+  else {
+    if (local?.pending) note = 'The tree was changed on another device, so unsaved changes on this one were replaced with the latest version.';
+    data = clone(fileData); remoteSha = remote?.sha || null; storeLocal();
+  }
   $('#loading').remove();
   boot();
   const h = sessionHash();
-  if (h && data.admin?.hash === h) setAdmin(true, h, true);
+  if (h && data.admin?.hash === h) {
+    try { token = sessionStorage.getItem(TOKEN_KEY); } catch (e) {}
+    setAdmin(true, h, true);
+    if (pending) scheduleSync(500);
+  }
+  if (note) toast(note);
+  listenForUpdates();
 }
 init();
 })();
