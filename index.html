@@ -1264,6 +1264,7 @@ async function pushRemote() {
     storeLocal(); setSync(pending ? 'saving' : 'saved');
     signalUpdate();
   } catch (e) {
+    if (!lastSyncError) lastSyncError = 'no response: ' + (e?.message || 'network error');
     setSync('offline'); clearTimeout(syncTimer); syncTimer = setTimeout(pushRemote, 15000);
   } finally {
     syncing = false;
@@ -1396,7 +1397,9 @@ function renderSyncSection() {
   $('#sync-status').textContent = !on ? 'Not connected yet. Your changes stay on this device until you connect GitHub.'
     : token ? `Connected to github.com/${SYNC.owner}/${SYNC.repo}. Every change saves there and appears on every device within seconds.`
     : 'Connected, but this device could not unlock the token. Enter the token again below.';
-  $('#sync-connect').hidden = on && !!token;
+  const failing = syncState === 'auth' || syncState === 'offline';
+  if (on && failing) $('#sync-status').textContent = `Connected, but the last save to GitHub failed${lastSyncError ? ` (GitHub said ${lastSyncError})` : ' (GitHub could not be reached)'}. Enter the token again below to retry.`;
+  $('#sync-connect').hidden = on && !!token && !failing;
   $('#gh-disconnect').hidden = !on;
 }
 $('#dataBtn').addEventListener('click', () => {
